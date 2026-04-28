@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, isWSL ? false, ... }:
 
 {
   # ===== 基本情報 =====
@@ -27,6 +27,10 @@
     ruff
     bash-language-server
     gh
+  ] ++ lib.optionals isWSL [
+    wslu
+  ] ++ lib.optionals pkgs.stdenv.isDarwin [
+    # macOS 専用 (Step 4 で活用)
   ];
 
    programs.neovim = {
