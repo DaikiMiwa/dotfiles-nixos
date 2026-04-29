@@ -27,6 +27,10 @@
     ruff
     bash-language-server
     gh
+    lazygit
+    awscli2
+    azure-cli
+    google-cloud-sdk
   ] ++ lib.optionals isWSL [
     wslu
   ] ++ lib.optionals pkgs.stdenv.isDarwin [
