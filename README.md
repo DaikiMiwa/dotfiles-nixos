@@ -51,7 +51,8 @@ sudo nixos-rebuild switch --flake .#nixos-wsl
 - prompt: starship
 - editor: Neovim
 - terminal multiplexer: tmux
-- CLI tools: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `gh`, `ghq`
+- CLI tools: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `gh`, `ghq`, `lazygit`
+- cloud CLIs: AWS CLI, Azure CLI, Google Cloud CLI
 - development tools: Node.js, Python, Terraform, Lua, TypeScript, Nix 関連ツール
 
 Neovim の設定は `home/nvim/` に置き、Home Manager で `~/.config/nvim` にリンクします。
