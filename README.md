@@ -87,14 +87,14 @@ React Native / Expo 用のツールは通常環境には入れず、devShell の
 nix develop .#expo -c zsh
 ```
 
-`nix develop`は通常bashを起動するため、zsh/starshipを使う場合は`-c zsh`を付けます。Home Manager適用後は、任意のプロジェクトで`expo-dev`を実行しても同じdevShellに入れます。
+`nix develop`は通常bashを起動するため、zsh/starshipを使う場合は`-c zsh`を付けます。Home Manager適用後は、任意のプロジェクトで`expo-dev`を実行しても同じdevShellに入れます。direnvも有効化しているので、Expoプロジェクトでは`.envrc`に`use flake ~/dotfiles-nixos#expo`を書いておくと自動でdevShellへ入れます。
 
-devShell には Node.js 22, pnpm, Yarn, Bun, JDK 21, Watchman, Android platform-tools (`adb`), EAS CLI が入ります。Expo プロジェクトは次のように作成できます。
+devShell には Node.js 22, pnpm, Yarn, Bun, JDK 21, Watchman, Git, Android platform-tools (`adb`), EAS CLI が入ります。`expo-env`, `expo-new`, `expo-start`, `expo-doctor`, `eas-latest` も使えます。Expo プロジェクトは次のように作成できます。
 
 ```bash
-pnpm create expo-app@latest my-app
+expo-new my-app
 cd my-app
-pnpm expo start
+expo-start
 ```
 
 Expo CLI はプロジェクトローカルのものを `pnpm expo ...` で実行する想定です。EAS Build / Submit はグローバルに入る `eas` を使えます。
