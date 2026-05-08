@@ -134,15 +134,33 @@
 
       mkChecks =
         system:
+        let
+          pkgs = pkgsFor system;
+        in
         {
           home-activation = self.homeConfigurations.${homeConfigurationName system}.activationPackage;
         }
         // nixpkgs.lib.optionalAttrs (system == linuxSystem) {
+          format-nix =
+            pkgs.runCommand "nixfmt-check"
+              {
+                nativeBuildInputs = [
+                  pkgs.nixfmt-rfc-style
+                ];
+                src = self;
+              }
+              ''
+                cd "$src"
+                nixfmt --check $(find . -name '*.nix' -type f | sort)
+                touch "$out"
+              '';
           nixos-wsl = self.nixosConfigurations.nixos-wsl.config.system.build.toplevel;
         };
     in
     {
       devShells = forAllSystems mkDevShells;
+
+      formatter = forAllSystems (system: (pkgsFor system).nixfmt-rfc-style);
 
       checks = forAllSystems mkChecks;
 
