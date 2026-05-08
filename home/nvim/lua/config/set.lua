@@ -3,10 +3,16 @@ vim.opt.expandtab = true -- タブをスペースに変換
 vim.opt.shiftwidth = 2 -- インデント幅
 vim.opt.tabstop = 2 -- タブ幅
 vim.opt.softtabstop = 2 -- 編集時のタブ幅
+vim.opt.foldenable = false
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
 
 vim.filetype.add({
 	extension = {
 		astro = "astro",
+		mdx = "mdx",
+		tf = "terraform",
+		tfvars = "terraform-vars",
 	},
 })
 
