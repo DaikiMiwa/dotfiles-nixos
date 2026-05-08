@@ -12,9 +12,11 @@ local servers = {
   "terraformls",
 }
 
-local extra_servers = {
-  "sourcekit",
-}
+local extra_servers = {}
+
+if (vim.uv or vim.loop).os_uname().sysname == "Darwin" then
+  table.insert(extra_servers, "sourcekit")
+end
 
 local function get_typescript_tsdk(root_dir)
   if root_dir then
@@ -77,7 +79,9 @@ vim.lsp.config("emmet_language_server", {
   },
 })
 
-vim.lsp.enable(vim.tbl_deep_extend("force", servers, extra_servers))
+local enabled_servers = vim.deepcopy(servers)
+vim.list_extend(enabled_servers, extra_servers)
+vim.lsp.enable(enabled_servers)
 
 -- 言語サーバーがアタッチされた時に呼ばれる
 vim.api.nvim_create_autocmd("LspAttach", {

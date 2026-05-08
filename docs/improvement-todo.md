@@ -13,16 +13,11 @@
 
 ## 次に潰す順番
 
-1. Neovim LSP の list 結合バグを直す。
-   - 対象: `home/nvim/lua/config/lsp.lua`
-   - 問題: `vim.tbl_deep_extend("force", servers, extra_servers)` は list 結合ではなく、`astro` が `sourcekit` に置き換わる。
-   - 方針: `vim.list_extend(vim.deepcopy(servers), extra_servers)` に変える。必要なら `sourcekit` は Darwin のみ有効化する。
-
-2. Lua formatter を導入して check に入れる。
+1. Lua formatter を導入して check に入れる。
    - 対象: `.stylua.toml`, `flake.nix`, `home/nvim/lua`, `home/nvim/after`
    - 方針: 既存 Lua を `stylua` で整形し、`format-lua` check を追加する。
 
-3. Neovim plugin 更新の再現性を改善する。
+2. Neovim plugin 更新の再現性を改善する。
    - 対象:
      - `home/nvim/lua/config/lazy.lua`
      - `home/nvim/lua/plugins/treesitter.lua`
@@ -31,12 +26,7 @@
    - 問題: 自動 update、`:TSUpdate`、外部 binary download、runtime build が Nix 管理外の変化を作る。
    - 方針: まずは自動更新を抑制し、更新手順を明示する。余裕があれば Nix 管理へ寄せる。
 
-4. Codex 設定の管理方針を決める。
-   - 対象: `home/codex.nix`
-   - 問題: 通常ファイルの `~/.codex/config.toml` が存在すると、以後 Home Manager から更新されない。
-   - 方針: 意図的なローカル上書きとして docs 化するか、宣言的管理に寄せる。trusted path と `approval_policy = "never"` の範囲も見直す。
-
-5. ドキュメントのコマンドを最新化する。
+3. ドキュメントのコマンドを最新化する。
    - 対象: `README.md`, `AGENTS.md`, `docs/react-native-expo-task-manager.md`
    - 方針: `nixos-rebuild` だけでなく、`nixos-switch`, `nh`, `dotfiles-check`, `dotfiles-fmt`, `expo-dev` を基準にする。
    - `docs/react-native-expo-task-manager.md` の `/home/daiki.miwa/...` は `~/dotfiles-nixos#expo` などに寄せる。
