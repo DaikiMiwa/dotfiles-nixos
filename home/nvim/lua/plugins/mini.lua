@@ -1,10 +1,10 @@
 return {
 	{
 		"nvim-mini/mini.surround",
-    opts = {}
+		opts = {},
 	},
-  {
-    "nvim-mini/mini.pairs",
-    opts = {}
-  }
+	{
+		"nvim-mini/mini.pairs",
+		opts = {},
+	},
 }

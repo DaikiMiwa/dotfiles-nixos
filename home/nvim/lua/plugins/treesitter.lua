@@ -4,11 +4,10 @@ return {
 		branch = "master",
 		lazy = false,
 		build = ":TSUpdate",
+		main = "nvim-treesitter.configs",
 		opts = {
-			-- LazyVim config for treesitter
-			indent = { enable = true }, ---@type lazyvim.TSFeat
-			highlight = { enable = true }, ---@type lazyvim.TSFeat
-			folds = { enable = true }, ---@type lazyvim.TSFeat
+			indent = { enable = true },
+			highlight = { enable = true },
 			ensure_installed = {
 				"astro",
 				"bash",
