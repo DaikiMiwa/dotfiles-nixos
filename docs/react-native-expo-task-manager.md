@@ -5,12 +5,19 @@
 元記事:
 https://tech-insider.org/react-native-tutorial-mobile-app-complete-guide-2026/
 
+公式資料:
+
+- create-expo-app: https://docs.expo.dev/more/create-expo/
+- EAS CLI: https://docs.expo.dev/eas/cli/
+- Expo環境変数: https://docs.expo.dev/guides/environment-variables/
+- Development builds: https://docs.expo.dev/develop/development-builds/create-a-build/
+
 ## 使う環境
 
 通常のHome Manager環境にはReact Native / Expo用ツールを入れません。作業するプロジェクトでdevShellに入ります。
 
 ```bash
-nix develop /home/daiki.miwa/dotfiles-nixos#expo -c zsh
+nix develop ~/dotfiles-nixos#expo -c zsh
 ```
 
 `nix develop`だけで入るとbashになるため、普段のzsh/starshipプロンプトを使う場合は`-c zsh`を付けます。Home Manager適用後は、作業プロジェクト内で`expo-dev`を実行しても同じdevShellに入れます。
@@ -18,7 +25,7 @@ nix develop /home/daiki.miwa/dotfiles-nixos#expo -c zsh
 direnvを使う場合は、プロジェクト直下に`.envrc`を置くと現在のzsh/starshipのままdevShellを読み込めます。
 
 ```bash
-echo 'use flake /home/daiki.miwa/dotfiles-nixos#expo' > .envrc
+echo 'use flake ~/dotfiles-nixos#expo' > .envrc
 direnv allow
 ```
 
@@ -28,18 +35,15 @@ direnv allow
 - pnpm / Yarn / Bun
 - JDK 21
 - Watchman
+- Git
 - Android platform-tools (`adb`)
 - EAS CLI (`eas`)
+- 補助コマンド: `expo-new`, `expo-start`, `expo-doctor`, `eas-latest`, `expo-env`
 
 確認:
 
 ```bash
-node --version
-npm --version
-pnpm --version
-java -version
-adb version
-eas --version
+expo-env
 ```
 
 ## WSLでの前提
@@ -48,15 +52,34 @@ Android Studio、Android SDK、エミュレータはWindows側に入れるのが
 
 Linux/WSLではiOSシミュレータやXcodeのローカルビルドは使えません。iOSはExpo Goでの確認、またはEAS Buildを使います。
 
-Android SDKをWSL側の`~/Android/Sdk`に置いた場合、devShellが`ANDROID_HOME`と`ANDROID_SDK_ROOT`を自動設定します。Windows側SDKを使う場合は、必要に応じてプロジェクトの`.envrc`やシェルでSDKパスを設定します。
+devShellは次の順でAndroid SDKを探し、見つかった場合は`ANDROID_HOME`と`ANDROID_SDK_ROOT`を自動設定します。
+
+1. 既存の`ANDROID_HOME`
+2. 既存の`ANDROID_SDK_ROOT`
+3. WSL側の`~/Android/Sdk`
+4. WSL上で見えるWindows側の`/mnt/c/Users/<Windowsユーザー>/AppData/Local/Android/Sdk`
+
+自動検出されない場合は、プロジェクトの`.envrc`などで明示します。
+
+```bash
+export ANDROID_HOME="$HOME/Android/Sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
+```
 
 ## プロジェクト作成
 
 記事はExpo managed workflowとExpo Router構成で進めます。`expo-template-blank-typescript`を使うと`App.tsx`中心の空テンプレートになり、記事の`app/`ディレクトリ構成にはなりません。
 
 ```bash
-pnpm create expo-app@latest TaskManager
+expo-new TaskManager
 cd TaskManager
+```
+
+SDKやテンプレートを明示したい場合は、`create-expo-app`のオプションをそのまま渡します。
+
+```bash
+expo-new TaskManager --template default
 ```
 
 記事で使う主要ライブラリを入れます。
@@ -105,13 +128,13 @@ TaskManager/
 ## 実行
 
 ```bash
-pnpm expo start
+expo-start
 ```
 
 Expo GoでQRコードを読むか、Android実機/エミュレータを使う場合はMetroの画面で`a`を押します。WSLとスマートフォンが同じネットワークでつながらない場合は、Tunnelモードを使います。
 
 ```bash
-pnpm expo start --tunnel
+expo-start --tunnel
 ```
 
 ## API接続
@@ -123,6 +146,8 @@ EXPO_PUBLIC_API_URL=http://localhost:3000
 ```
 
 実機からWSL上のAPIへアクセスする場合、`localhost`はスマートフォン自身を指します。PCのLAN IP、Expo tunnel、または外部のモックAPI URLを使います。
+
+`EXPO_PUBLIC_`で始まる環境変数はアプリに埋め込まれるため、秘密情報は入れません。
 
 ## テスト
 
@@ -140,6 +165,20 @@ ExpoアカウントにログインしてEAS設定を作ります。
 ```bash
 eas login
 eas build:configure
+```
+
+Nixpkgsの`eas`が古いと表示された場合だけ、公式最新のEAS CLIを一時実行する`eas-latest`を使います。
+
+```bash
+eas-latest login
+eas-latest build:configure
+```
+
+開発ビルドに進む場合は、Expo Goの代わりになる開発クライアントを入れます。
+
+```bash
+pnpm expo install expo-dev-client
+eas build --platform android --profile development
 ```
 
 AndroidのプレビューAPK:
@@ -160,6 +199,7 @@ iOSを本番配布するにはApple Developer Program、AndroidをGoogle Playへ
 
 - Expo CLIはプロジェクトローカルのものを`pnpm expo ...`で使います。
 - EAS CLIはdevShellに入れているので`eas ...`で使えます。
+- 環境確認はdevShell内で`expo-env`、プロジェクト確認はプロジェクト直下で`expo-doctor`を使います。
 - AsyncStorageに秘密情報を保存しません。認証トークンなどは`expo-secure-store`を検討します。
 - `EXPO_PUBLIC_`で始まる環境変数はアプリに埋め込まれるため、秘密情報を入れません。
 - Windows側Android StudioのSDKを使う場合、SDKパスと`adb`接続方法は環境ごとに調整が必要です。
