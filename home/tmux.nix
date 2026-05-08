@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 let
+  iconvPackage = if pkgs.stdenv.isLinux then pkgs.glibc.bin else pkgs.libiconv;
+
   tmux-session-manager = pkgs.writeShellApplication {
     name = "tmux-session-manager";
     runtimeInputs = with pkgs; [
@@ -51,20 +53,27 @@ let
       EOF
       )
 
-              if [ -n "$selected" ]; then
-                echo "$selected" | awk '{print $1}'
+            if [ -n "$selected" ]; then
+              echo "$selected" | awk '{print $1}'
+            else
+              echo ""
+            fi
+          }
+
+            format_session_name() {
+              icon="$1"
+              name="$2"
+              if [ -n "$icon" ]; then
+                printf '%s %s\n' "$icon" "$name"
               else
-                echo ""
+                printf '%s\n' "$name"
               fi
             }
 
-            sessions=$(tmux list-sessions -F '#{session_name}' 2>/dev/null | while read -r s; do
-              if [ "$(echo "$s" | cut -c2)" = " " ]; then
-                echo "$(echo "$s" | cut -c3-)|$s"
-              else
-                echo "$s|$s"
-              fi
-            done | sort | cut -d'|' -f2)
+            sessions=$(tmux list-sessions -F '#{session_name}' 2>/dev/null | awk '
+              index($0, " ") == 2 { print substr($0, 3) "|" $0; next }
+              { print $0 "|" $0 }
+            ' | sort | cut -d'|' -f2-)
 
             result=$(echo "$sessions" | \
               fzf --prompt="Session: " \
@@ -104,7 +113,7 @@ let
                 read -r new_session
                 if [ -n "$new_session" ]; then
                   icon=$(select_icon)
-                  full_session_name="$icon $new_session"
+                  full_session_name=$(format_session_name "$icon" "$new_session")
                   tmux new-session -d -s "$full_session_name"
                   tmux switch-client -t "$full_session_name"
                   echo "Session '$full_session_name' created."
@@ -119,7 +128,7 @@ let
                   read -r new_name
                   if [ -n "$new_name" ]; then
                     icon=$(select_icon)
-                    full_session_name="$icon $new_name"
+                    full_session_name=$(format_session_name "$icon" "$new_name")
                     tmux rename-session -t "$session" "$full_session_name"
                     echo "Session renamed to '$full_session_name'."
                   else
@@ -134,6 +143,26 @@ let
                 fi
                 ;;
       esac
+    '';
+  };
+
+  tmux-wsl-copy = pkgs.writeShellApplication {
+    name = "tmux-wsl-copy";
+    runtimeInputs = [
+      iconvPackage
+    ];
+    text = ''
+      iconv -f UTF-8 -t UTF-16LE | /mnt/c/Windows/System32/clip.exe
+    '';
+  };
+
+  tmux-wsl-paste = pkgs.writeShellApplication {
+    name = "tmux-wsl-paste";
+    text = ''
+      /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe \
+        -NoLogo \
+        -NoProfile \
+        -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; \$OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::Out.Write((Get-Clipboard -Raw))"
     '';
   };
 
@@ -158,17 +187,16 @@ in
   programs.tmux = {
     enable = true;
     clock24 = true;
+    escapeTime = 10;
+    focusEvents = true;
     keyMode = "vi";
     mouse = true;
+    prefix = "M-b";
+    shell = "${pkgs.zsh}/bin/zsh";
     terminal = "tmux-256color";
 
     extraConfig = ''
-      unbind C-b
-      set-option -g prefix M-b;
-      bind-key M-b; send-prefix
-
-      set-option -g default-shell "''${SHELL}"
-      set -g default-command "''${SHELL}"
+      bind-key M-b send-prefix
 
       bind h select-pane -L
       bind j select-pane -D
@@ -188,13 +216,11 @@ in
       set -g allow-passthrough on
 
       run-shell 'if uname -r | grep -qi microsoft; then \
-        tmux bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "/mnt/c/Windows/System32/clip.exe"; \
-        tmux bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "/mnt/c/Windows/System32/clip.exe"; \
-        tmux bind-key p run-shell "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoLogo -NoProfile -Command \"[Console]::Out.Write((Get-Clipboard -Raw))\" | tmux load-buffer - && tmux paste-buffer"; \
+        tmux bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"; \
+        tmux bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"; \
+        tmux bind-key p run-shell "${tmux-wsl-paste}/bin/tmux-wsl-paste | tmux load-buffer - && tmux paste-buffer"; \
       fi'
 
-      set -g pane-border-style fg=colour240
-      set -g pane-active-border-style fg=colour33
       set -g update-environment 'DISPLAY WAYLAND_DISPLAY COLORTERM SSH_AUTH_SOCK SSH_CONNECTION WINDOWID XAUTHORITY PATH WSL_INTEROP'
 
       bind r source-file ~/.config/tmux/tmux.conf \; display-message "tmux.conf reloaded"
@@ -211,7 +237,7 @@ in
       set -g status-justify left
       set -g status-position bottom
       set -g status-style "bg=${palette.soil},fg=${palette.sand}"
-      set -g status-left "#[fg=${palette.soil},bg=${palette.moss},bold] #S #[fg=${palette.moss},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{session_windows}w #{?client_prefix,#[fg=${palette.ochre},bold]PREFIX#[fg=${palette.sand}],} #[fg=${palette.bark},bg=${palette.soil}]"
+      set -g status-left "#[fg=${palette.soil},bg=${palette.moss},bold] #S #[fg=${palette.moss},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{session_windows}w #[fg=${palette.ochre}]#{?client_prefix,PREFIX,}#[fg=${palette.sand}] #[fg=${palette.bark},bg=${palette.soil}]"
       set -g status-right "#[fg=${palette.muted},bg=${palette.soil}] #{?window_zoomed_flag,zoom ,}#{?pane_in_mode,copy ,}#[fg=${palette.soil},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{pane_current_command} #[fg=${palette.muted}]#{b:pane_current_path} #[fg=${palette.bark},bg=${palette.olive}]#[fg=${palette.soil},bg=${palette.olive},bold] #{pane_index}/#{window_panes} #[fg=${palette.olive},bg=${palette.teal}]#[fg=${palette.soil},bg=${palette.teal},bold] #H #[fg=${palette.teal},bg=${palette.ochre}]#[fg=${palette.soil},bg=${palette.ochre},bold] %a %m/%d %H:%M "
 
       set-window-option -g window-status-separator ""
@@ -219,6 +245,8 @@ in
       set-window-option -g window-status-format "#[fg=${palette.muted},bg=${palette.soil}] #I:#W#{window_flags} "
       set-window-option -g window-status-current-style "fg=${palette.soil},bg=${palette.olive},bold"
       set-window-option -g window-status-current-format "#[fg=${palette.soil},bg=${palette.olive},bold] #I:#W#{window_flags} #[fg=${palette.olive},bg=${palette.soil}]"
+      set-window-option -g window-status-activity-style "fg=${palette.ochre},bg=${palette.soil},bold"
+      set-window-option -g window-status-bell-style "fg=${palette.sand},bg=${palette.clay},bold"
 
       set -g pane-border-style "fg=${palette.bark}"
       set -g pane-active-border-style "fg=${palette.moss}"
