@@ -48,6 +48,17 @@
     "flakes"
   ];
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
+
+  nix.optimise = {
+    automatic = true;
+    dates = [ "weekly" ];
+  };
+
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "terraform" ];
 
   networking.interfaces.eth0.mtu = 1280;
