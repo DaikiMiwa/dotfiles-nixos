@@ -5,7 +5,13 @@
 # NixOS-WSL specific options are documented on the NixOS-WSL repository:
 # https://github.com/nix-community/NixOS-WSL
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  username,
+  ...
+}:
 
 {
   imports = [
@@ -16,19 +22,83 @@
 
   wsl = {
     enable = true;
-    defaultUser = "nixos";
+    defaultUser = username;
     interop.includePath = false;
   };
 
-  users.users.nixos = {
+  users.users.${username} = {
     isNormalUser = true;
-    extraGroups = ["wheel"];
+    extraGroups = [
+      "wheel"
+      "docker"
+    ];
+    linger = true;
     shell = pkgs.zsh;
   };
 
   programs.zsh.enable = true;
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  programs.java = {
+    enable = true;
+    package = pkgs.jdk21; # Java JDK
+  };
+
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "terraform" ];
+
+  networking.interfaces.eth0.mtu = 1280;
+
+  fonts = {
+    packages = with pkgs; [
+      dejavu_fonts
+      liberation_ttf
+      noto-fonts
+      noto-fonts-cjk-sans
+      noto-fonts-cjk-serif
+      noto-fonts-color-emoji
+      udev-gothic
+    ];
+
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        serif = [
+          "Noto Serif CJK JP"
+          "Noto Serif"
+        ];
+        sansSerif = [
+          "UDEV Gothic"
+          "Noto Sans CJK JP"
+          "Noto Sans"
+        ];
+        monospace = [
+          "UDEV Gothic"
+          "DejaVu Sans Mono"
+          "Noto Sans Mono CJK JP"
+        ];
+        emoji = [
+          "Noto Color Emoji"
+        ];
+      };
+    };
+  };
+
+  virtualisation.docker = {
+    enable = true;
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+    };
+  };
+
+  systemd.sockets.docker.socketConfig = {
+    SocketGroup = "docker";
+    SocketMode = "0660";
+  };
 
   environment.systemPackages = with pkgs; [
     # 基本
@@ -37,7 +107,7 @@
     unzip
 
     # CLI ユーティリティ
-    jq         # JSON 整形
+    jq # JSON 整形
     tree
     htop
 
@@ -45,12 +115,28 @@
     neovim
 
     # 言語ランタイム (まずは素直にシステムに入れる)
-    nodejs_22       # Node.js (Web/TS用)
-    python313       # Python 本体
+    nodejs_22 # Node.js (Web/TS用)
+    python313 # Python 本体
 
     # ビルド系 (色々入れる時に必要になる)
     gcc
     gnumake
+
+    # コンテナ
+    docker-compose
+
+    # Browser automation
+    chromium
+  ];
+
+  environment.variables = {
+    CHROME_BIN = "${pkgs.chromium}/bin/chromium";
+    CHROMIUM_BIN = "${pkgs.chromium}/bin/chromium";
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /opt/google/chrome 0755 root root -"
+    "L+ /opt/google/chrome/chrome - - - - ${pkgs.chromium}/bin/chromium"
   ];
 
   time.timeZone = "Asia/Tokyo";
