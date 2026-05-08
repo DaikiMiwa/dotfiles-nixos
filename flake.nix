@@ -31,13 +31,12 @@
         "x86_64-darwin"
       ];
       supportedSystems = [ linuxSystem ] ++ darwinSystems;
+      unfreePackageNames = [
+        "terraform"
+      ];
 
       nixpkgsConfig = {
-        allowUnfreePredicate =
-          pkg:
-          builtins.elem (nixpkgs.lib.getName pkg) [
-            "terraform"
-          ];
+        allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) unfreePackageNames;
       };
 
       pkgsFor =
@@ -177,7 +176,9 @@
       # WSL 用の NixOS 設定
       nixosConfigurations.nixos-wsl = nixpkgs.lib.nixosSystem {
         system = linuxSystem;
-        specialArgs = { inherit username; };
+        specialArgs = {
+          inherit username unfreePackageNames;
+        };
         modules = [
           nixos-wsl.nixosModules.default
           ./nixos/configuration.nix

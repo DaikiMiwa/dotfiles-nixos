@@ -10,6 +10,7 @@
   lib,
   pkgs,
   username,
+  unfreePackageNames ? [ ],
   ...
 }:
 
@@ -59,7 +60,7 @@
     dates = [ "weekly" ];
   };
 
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "terraform" ];
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePackageNames;
 
   networking.interfaces.eth0.mtu = 1280;
 
@@ -121,17 +122,6 @@
     jq # JSON 整形
     tree
     htop
-
-    # エディタ (LSP 関連は後で追加)
-    neovim
-
-    # 言語ランタイム (まずは素直にシステムに入れる)
-    nodejs_22 # Node.js (Web/TS用)
-    python313 # Python 本体
-
-    # ビルド系 (色々入れる時に必要になる)
-    gcc
-    gnumake
 
     # コンテナ
     docker-compose

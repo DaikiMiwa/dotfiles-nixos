@@ -1,7 +1,5 @@
 {
-  config,
   pkgs,
-  lib,
   homeDirectory,
   ...
 }:
@@ -18,8 +16,6 @@ let
     [projects."${homeDirectory}/src/github.com/daiki.miwa"]
     trust_level = "trusted"
   '';
-
-  codexConfigFile = pkgs.writeText "codex-config.toml" codexConfigText;
 
   codex-bin = pkgs.stdenvNoCC.mkDerivation {
     pname = "codex";
@@ -59,12 +55,8 @@ in
     codexPackage
   ];
 
-  home.activation.ensureCodexConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD mkdir -p "$HOME/.codex"
-
-    if [ ! -e "$HOME/.codex/config.toml" ] || [ -L "$HOME/.codex/config.toml" ]; then
-      $DRY_RUN_CMD rm -f "$HOME/.codex/config.toml"
-      $DRY_RUN_CMD install -m 600 ${codexConfigFile} "$HOME/.codex/config.toml"
-    fi
-  '';
+  home.file.".codex/config.toml" = {
+    text = codexConfigText;
+    force = true;
+  };
 }
