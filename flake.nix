@@ -129,9 +129,22 @@
             isWSL = false;
           };
         };
+
+      homeConfigurationName = system: if system == linuxSystem then username else "${username}-${system}";
+
+      mkChecks =
+        system:
+        {
+          home-activation = self.homeConfigurations.${homeConfigurationName system}.activationPackage;
+        }
+        // nixpkgs.lib.optionalAttrs (system == linuxSystem) {
+          nixos-wsl = self.nixosConfigurations.nixos-wsl.config.system.build.toplevel;
+        };
     in
     {
       devShells = forAllSystems mkDevShells;
+
+      checks = forAllSystems mkChecks;
 
       homeConfigurations = {
         ${username} = mkHome linuxSystem;
