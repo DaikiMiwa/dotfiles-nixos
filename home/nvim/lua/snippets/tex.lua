@@ -54,6 +54,22 @@ $pdf_mode = 3;
 	s("pdflatex", t("% !TEX program = pdflatex")),
 	s("platex", t("% !TEX program = platex")),
 	s("uplatex", t("% !TEX program = uplatex")),
+	s(
+		"biblatex",
+		fmt(
+			[[
+\usepackage[backend={},style={},sorting={}]{{biblatex}}
+\addbibresource{{{}}}
+]],
+			{
+				i(1, "biber"),
+				i(2, "numeric"),
+				i(3, "none"),
+				i(4, "references.bib"),
+			}
+		)
+	),
+	s("printbib", t("\\printbibliography")),
 
 	s(
 		"fig",
@@ -106,8 +122,17 @@ $pdf_mode = 3;
 
 	s("eq", fmt("\\begin{{equation}}\n  {}\n\\end{{equation}}", { i(0) })),
 	s("al", fmt("\\begin{{align}}\n  {}\n\\end{{align}}", { i(0) })),
+	s("ca", fmt("\\begin{{cases}}\n  {}\n\\end{{cases}}", { i(0) })),
+	s("pmat", fmt("\\begin{{pmatrix}}\n  {}\n\\end{{pmatrix}}", { i(0) })),
+	s("bmat", fmt("\\begin{{bmatrix}}\n  {}\n\\end{{bmatrix}}", { i(0) })),
+	s("fr", fmt("\\frac{{{}}}{{{}}}", { i(1), i(2) })),
 	s("it", fmt("\\begin{{itemize}}\n  \\item {}\n\\end{{itemize}}", { i(0) })),
 	s("en", fmt("\\begin{{enumerate}}\n  \\item {}\n\\end{{enumerate}}", { i(0) })),
+	s("abs", fmt("\\begin{{abstract}}\n  {}\n\\end{{abstract}}", { i(0) })),
+	s("thm", fmt("\\begin{{theorem}}[{}]\n  {}\n\\end{{theorem}}", { i(1, "Title"), i(0) })),
+	s("lem", fmt("\\begin{{lemma}}[{}]\n  {}\n\\end{{lemma}}", { i(1, "Title"), i(0) })),
+	s("defn", fmt("\\begin{{definition}}[{}]\n  {}\n\\end{{definition}}", { i(1, "Title"), i(0) })),
+	s("prf", fmt("\\begin{{proof}}\n  {}\n\\end{{proof}}", { i(0) })),
 	s("sec", fmt("\\section{{{}}}", { i(0, "Section") })),
 	s("ssec", fmt("\\subsection{{{}}}", { i(0, "Subsection") })),
 	s("sssec", fmt("\\subsubsection{{{}}}", { i(0, "Subsubsection") })),
