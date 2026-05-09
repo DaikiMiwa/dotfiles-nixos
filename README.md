@@ -71,6 +71,7 @@ sudo nixos-rebuild switch --flake .#nixos-wsl
 - CLI tools: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `gh`, `ghq`, `lazygit`
 - cloud CLIs: AWS CLI, Azure CLI, Google Cloud CLI
 - development tools: Node.js, Python, Terraform, Lua, TypeScript, Nix 関連ツール
+- writing tools: LaTeX, BibLaTeX/Biber, Pandoc, Poppler utilities
 - devShells: React Native / Expo, Astro / Playwright
 
 Neovim の設定は `home/nvim/` に置き、Home Manager で `~/.config/nvim` にリンクします。
@@ -80,6 +81,18 @@ tmux では、`prefix + m` で fzf ベースのセッション管理ポップア
 WSL の tmux では、`prefix + I` で Windows クリップボード内の画像を PNG に保存し、その WSL パスを現在のペインへ貼り付けます。Codex CLI の画像貼り付けが Windows クリップボードを直接読めない場合は、このキーで画像パスを入力欄へ貼り付けて添付します。コマンド単体では `codex-wsl-clipboard-image` が保存後の WSL パスを出力し、`codex-wsl-paste-image` が tmux ペインへ貼り付けます。
 
 Docker は NixOS の `virtualisation.docker` で有効化し、ユーザーを `docker` グループに追加します。初回適用後は、グループ反映のために WSL セッションへ入り直します。
+
+## LaTeX / 論文執筆
+
+LaTeX は Home Manager の通常環境に入り、LuaLaTeX / pdfLaTeX / pLaTeX / upLaTeX を使えます。新しい論文プロジェクトは次で作成できます。
+
+```bash
+paper-new my-paper
+cd my-paper
+latexmk-lualatex main.tex
+```
+
+Neovim では `.tex` を開いた時だけ VimTeX と LaTeX snippets が読み込まれます。`<leader>ll` で自動ビルド、`<leader>lv` で PDF 表示、`<leader>lb` で `.bib` から citation、`<leader>lr` で `\label{}` から `\cref{}` を挿入します。insert mode では citation が `<C-g>b`、reference が `<C-g>r` です。
 
 ## React Native / Expo
 
