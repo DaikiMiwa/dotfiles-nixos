@@ -14,6 +14,7 @@ local servers = {
 	"sqls",
 	"terraformls",
 	"texlab",
+	"ltex_plus",
 }
 
 local function get_typescript_tsdk(root_dir)
@@ -140,11 +141,12 @@ local texlab_forward_search = tex_forward_search()
 local texlab_settings = {
 	build = {
 		args = {
-			"-pdf",
+			"-file-line-error",
 			"-interaction=nonstopmode",
 			"-synctex=1",
 			"%f",
 		},
+		auxDirectory = "build",
 		executable = "latexmk",
 		forwardSearchAfter = texlab_forward_search ~= nil,
 		onSave = false,
@@ -163,6 +165,29 @@ end
 vim.lsp.config("texlab", {
 	settings = {
 		texlab = texlab_settings,
+	},
+})
+
+vim.lsp.config("ltex_plus", {
+	filetypes = {
+		"bib",
+		"gitcommit",
+		"markdown",
+		"plaintex",
+		"tex",
+	},
+	settings = {
+		ltex = {
+			language = "auto",
+			additionalRules = {
+				enablePickyRules = true,
+			},
+			disabledRules = {
+				["en-US"] = {
+					"WHITESPACE_RULE",
+				},
+			},
+		},
 	},
 })
 

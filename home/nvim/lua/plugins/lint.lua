@@ -21,8 +21,16 @@ return {
 					return { "tflint" }
 				end
 
-				if ft == "tex" then
-					return { "chktex" }
+				if ft == "tex" or ft == "plaintex" then
+					local linters = { "chktex" }
+					if has_root_file({ ".vale.ini", "_vale.ini" }) then
+						table.insert(linters, "vale")
+					end
+					return linters
+				end
+
+				if ft == "markdown" and has_root_file({ ".vale.ini", "_vale.ini" }) then
+					return { "vale" }
 				end
 
 				if
