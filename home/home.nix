@@ -11,6 +11,7 @@
 {
   imports = [
     ./codex.nix
+    ./latex.nix
     ./nvim.nix
     ./tmux.nix
   ];

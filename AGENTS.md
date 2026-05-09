@@ -36,6 +36,8 @@ Recent commits use short imperative messages, often with a scope, such as `nix: 
 
 Pull requests should include a summary, validation commands run, and notes for any manual post-apply steps such as restarting tmux or re-entering WSL.
 
+When completing a change end-to-end, create a topic branch first, stage the intended files, commit with an imperative message, push the branch, and open a pull request. Start a review agent to review the pull request before merging. If the review agent reports no blocking issues, merge the pull request and clean up the branch as appropriate.
+
 ## Security & Configuration Tips
 
 Do not commit secrets, tokens, local Codex state, or machine-specific credentials. Keep `~/.ssh/config.local` outside the repository. `.codex` is ignored intentionally; Codex configuration is generated through Home Manager without storing credentials.

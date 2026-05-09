@@ -1,3 +1,6 @@
 require("config.lazy")
 require("config.set")
+require("config.keymaps")
+require("config.autocmds")
+require("config.diagnostics")
 require("config.lsp")
