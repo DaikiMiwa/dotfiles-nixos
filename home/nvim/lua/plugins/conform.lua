@@ -15,6 +15,7 @@ return {
 				mdx = { "prettier" },
 				-- Conform will run multiple formatters sequentially
 				python = { "ruff_format" },
+				plaintex = { "latexindent" },
 				tex = { "latexindent" },
 				-- You can customize some of the format options for the filetype (:help conform.format)
 				rust = { "rustfmt", lsp_format = "fallback" },

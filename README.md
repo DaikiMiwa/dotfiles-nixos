@@ -88,11 +88,14 @@ LaTeX は Home Manager の通常環境に入り、LuaLaTeX / pdfLaTeX / pLaTeX /
 
 ```bash
 paper-new my-paper
+paper-new --platex --conference domestic-paper
 cd my-paper
 latexmk-lualatex main.tex
 ```
 
-Neovim では `.tex` を開いた時だけ VimTeX と LaTeX snippets が読み込まれます。`<leader>ll` で自動ビルド、`<leader>lv` で PDF 表示、`<leader>lb` で `.bib` から citation、`<leader>lr` で `\label{}` から `\cref{}` を挿入します。insert mode では citation が `<C-g>b`、reference が `<C-g>r` です。
+`paper-new` は `--engine <lualatex|pdflatex|platex|uplatex>` と `--template <article|conference|minimal>` を選べます。補助コマンドとして、`paper-check`、`paper-count`、`paper-diff`、`paper-bib-sort`、`paper-bib-check`、`paper-fig` も入ります。
+
+Neovim では `.tex` を開いた時だけ VimTeX と LaTeX snippets が読み込まれます。`<leader>ll` で自動ビルド、`<leader>lv` で PDF 表示、`<leader>lb` で `.bib` から citation、`<leader>lp` / `<leader>la` で `\parencite{}` / `\textcite{}`、`<leader>lr` で `\label{}` から `\cref{}` を挿入します。`<leader>lF`、`<leader>lT`、`<leader>lE` で図・表・数式ラベルに絞り込めます。`<leader>ld` は論文 dashboard、`<leader>lo` は TODO picker、`<leader>lw` は word/page count、`<leader>lC` は `paper-check` です。
 
 ## React Native / Expo
 

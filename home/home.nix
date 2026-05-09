@@ -72,6 +72,7 @@
       gemini-cli
       (textlint.withPackages [
         textlint-rule-preset-ja-spacing
+        textlint-rule-preset-ja-technical-writing
       ])
     ]
     ++ lib.optionals pkgs.stdenv.isLinux [
@@ -110,6 +111,15 @@
         ja-space-between-half-and-full-width = {
           space = "always";
         };
+      };
+      preset-ja-technical-writing = {
+        sentence-length = {
+          max = 120;
+        };
+        max-kanji-continuous-len = {
+          max = 8;
+        };
+        no-mix-dearu-desumasu = true;
       };
     };
   };
