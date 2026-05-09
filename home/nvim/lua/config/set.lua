@@ -1,11 +1,35 @@
 vim.opt.number = true
+vim.opt.relativenumber = true
 vim.opt.expandtab = true -- タブをスペースに変換
 vim.opt.shiftwidth = 2 -- インデント幅
 vim.opt.tabstop = 2 -- タブ幅
 vim.opt.softtabstop = 2 -- 編集時のタブ幅
+vim.opt.smartindent = true
 vim.opt.foldenable = false
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
+vim.opt.termguicolors = true
+vim.opt.cursorline = true
+vim.opt.signcolumn = "yes"
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.scrolloff = 8
+vim.opt.sidescrolloff = 8
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.inccommand = "split"
+vim.opt.undofile = true
+vim.opt.confirm = true
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 400
+vim.opt.list = true
+vim.opt.listchars = {
+	tab = "> ",
+	trail = "-",
+	nbsp = "+",
+	extends = ">",
+	precedes = "<",
+}
 
 vim.filetype.add({
 	extension = {
@@ -46,6 +70,21 @@ vim.api.nvim_create_autocmd("FileType", {
 		vim.opt_local.shiftwidth = 4
 		vim.opt_local.tabstop = 4
 		vim.opt_local.softtabstop = 4
+	end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "bib", "plaintex", "tex" },
+	callback = function()
+		vim.opt_local.conceallevel = 2
+		vim.opt_local.expandtab = true
+		vim.opt_local.linebreak = true
+		vim.opt_local.shiftwidth = 2
+		vim.opt_local.softtabstop = 2
+		vim.opt_local.spell = true
+		vim.opt_local.spelllang = { "en_us", "cjk" }
+		vim.opt_local.tabstop = 2
+		vim.opt_local.wrap = true
 	end,
 })
 

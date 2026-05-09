@@ -21,6 +21,10 @@ return {
 					return { "tflint" }
 				end
 
+				if ft == "tex" then
+					return { "chktex" }
+				end
+
 				if
 					vim.tbl_contains({ "javascript", "javascriptreact", "typescript", "typescriptreact" }, ft)
 					and has_root_file({

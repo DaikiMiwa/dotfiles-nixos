@@ -166,6 +166,80 @@ let
     '';
   };
 
+  codex-wsl-clipboard-image = pkgs.writeShellApplication {
+    name = "codex-wsl-clipboard-image";
+    runtimeInputs = with pkgs; [
+      coreutils
+    ];
+    text = ''
+      set -euo pipefail
+
+      powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+      if [ ! -x "$powershell" ]; then
+        echo "Windows PowerShell was not found at $powershell" >&2
+        exit 1
+      fi
+
+      tmp_ps="$(mktemp "''${TMPDIR:-/tmp}/codex-wsl-clipboard-image.XXXXXX.ps1")"
+      trap 'rm -f "$tmp_ps"' EXIT
+
+      cat >"$tmp_ps" <<'EOF'
+      $ErrorActionPreference = 'Stop'
+      Add-Type -AssemblyName System.Windows.Forms
+      Add-Type -AssemblyName System.Drawing
+
+      if ([System.Windows.Forms.Clipboard]::ContainsImage()) {
+          $path = Join-Path $env:TEMP ("codex-clipboard-{0}.png" -f ([guid]::NewGuid().ToString("N")))
+          $image = [System.Windows.Forms.Clipboard]::GetImage()
+          $image.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
+          [Console]::Out.Write($path)
+          exit 0
+      }
+
+      if ([System.Windows.Forms.Clipboard]::ContainsFileDropList()) {
+          $files = [System.Windows.Forms.Clipboard]::GetFileDropList()
+          foreach ($file in $files) {
+              if ($file -match '\.(png|jpe?g|webp|gif)$') {
+                  [Console]::Out.Write($file)
+                  exit 0
+              }
+          }
+      }
+
+      [Console]::Error.WriteLine('No image was found in the Windows clipboard.')
+      exit 1
+      EOF
+
+      ps_file="$(/sbin/wslpath -w "$tmp_ps")"
+      win_path="$("$powershell" -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "$ps_file" | tr -d '\r')"
+      if [ -z "$win_path" ]; then
+        echo "Windows clipboard image export produced no path." >&2
+        exit 1
+      fi
+
+      /sbin/wslpath -u "$win_path"
+    '';
+  };
+
+  codex-wsl-paste-image = pkgs.writeShellApplication {
+    name = "codex-wsl-paste-image";
+    runtimeInputs = [
+      codex-wsl-clipboard-image
+      pkgs.tmux
+    ];
+    text = ''
+      set -euo pipefail
+
+      image_path="$(codex-wsl-clipboard-image)"
+      if [ -n "''${TMUX:-}" ]; then
+        printf '%s' "$image_path" | tmux load-buffer -
+        tmux paste-buffer
+      else
+        printf '%s\n' "$image_path"
+      fi
+    '';
+  };
+
   palette = {
     charcoal = "#17150F";
     soil = "#2A2418";
@@ -182,6 +256,8 @@ in
 {
   home.packages = [
     tmux-session-manager
+    codex-wsl-clipboard-image
+    codex-wsl-paste-image
   ];
 
   programs.tmux = {
@@ -219,6 +295,7 @@ in
         tmux bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"; \
         tmux bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"; \
         tmux bind-key p run-shell "${tmux-wsl-paste}/bin/tmux-wsl-paste | tmux load-buffer - && tmux paste-buffer"; \
+        tmux bind-key I run-shell "${codex-wsl-paste-image}/bin/codex-wsl-paste-image"; \
       fi'
 
       set -g update-environment 'DISPLAY WAYLAND_DISPLAY COLORTERM SSH_AUTH_SOCK SSH_CONNECTION WINDOWID XAUTHORITY PATH WSL_INTEROP'

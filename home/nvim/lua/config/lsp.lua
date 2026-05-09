@@ -2,6 +2,9 @@ local servers = {
 	"astro",
 	"tailwindcss",
 	"emmet_language_server",
+	"html",
+	"cssls",
+	"jsonls",
 	"pyrefly",
 	"ruff",
 	"ts_ls",
@@ -10,6 +13,7 @@ local servers = {
 	"lua_ls",
 	"sqls",
 	"terraformls",
+	"texlab",
 }
 
 local function get_typescript_tsdk(root_dir)
@@ -88,8 +92,78 @@ vim.lsp.config("emmet_language_server", {
 	},
 })
 
+vim.lsp.config("html", {
+	filetypes = { "html" },
+})
+
+vim.lsp.config("cssls", {
+	filetypes = { "css", "scss" },
+})
+
+vim.lsp.config("jsonls", {
+	filetypes = { "json", "jsonc" },
+})
+
 vim.lsp.config("terraformls", {
 	filetypes = { "terraform" },
+})
+
+local function tex_forward_search()
+	local skim_displayline = "/Applications/Skim.app/Contents/SharedSupport/displayline"
+
+	if vim.fn.executable(skim_displayline) == 1 then
+		return {
+			executable = skim_displayline,
+			args = {
+				"-r",
+				"%l",
+				"%p",
+				"%f",
+			},
+		}
+	end
+
+	if vim.fn.executable("zathura") == 1 then
+		return {
+			executable = "zathura",
+			args = {
+				"--synctex-forward",
+				"%l:1:%f",
+				"%p",
+			},
+		}
+	end
+end
+
+local texlab_forward_search = tex_forward_search()
+
+local texlab_settings = {
+	build = {
+		args = {
+			"-pdf",
+			"-interaction=nonstopmode",
+			"-synctex=1",
+			"%f",
+		},
+		executable = "latexmk",
+		forwardSearchAfter = texlab_forward_search ~= nil,
+		onSave = false,
+	},
+	chktex = {
+		onEdit = false,
+		onOpenAndSave = true,
+	},
+	latexFormatter = "latexindent",
+}
+
+if texlab_forward_search then
+	texlab_settings.forwardSearch = texlab_forward_search
+end
+
+vim.lsp.config("texlab", {
+	settings = {
+		texlab = texlab_settings,
+	},
 })
 
 if vim.fn.executable("sourcekit-lsp") == 1 then
@@ -110,6 +184,22 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		-- 言語サーバーのクライアントがLSPで定められた機能を実装していたら設定を追加するという流れ
 		if client:supports_method("textDocument/definition") then
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = buf, desc = "Go to definition" })
+		end
+
+		if client:supports_method("textDocument/declaration") then
+			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = buf, desc = "Go to declaration" })
+		end
+
+		if client:supports_method("textDocument/implementation") then
+			vim.keymap.set("n", "gI", vim.lsp.buf.implementation, { buffer = buf, desc = "Go to implementation" })
+		end
+
+		if client:supports_method("textDocument/typeDefinition") then
+			vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, { buffer = buf, desc = "Go to type definition" })
+		end
+
+		if client:supports_method("textDocument/rename") then
+			vim.keymap.set("n", "<leader>cR", vim.lsp.buf.rename, { buffer = buf, desc = "Rename symbol" })
 		end
 
 		if client:supports_method("textDocument/hover") then

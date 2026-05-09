@@ -47,6 +47,28 @@ return {
 				desc = "Live Grep",
 			},
 			{
+				"<leader>/",
+				function()
+					require("fzf-lua").blines()
+				end,
+				desc = "Search current buffer",
+			},
+			{
+				"<leader>fw",
+				function()
+					require("fzf-lua").grep_cword()
+				end,
+				desc = "Find word under cursor",
+			},
+			{
+				"<leader>fw",
+				function()
+					require("fzf-lua").grep_visual()
+				end,
+				mode = "v",
+				desc = "Find selection",
+			},
+			{
 				"<leader>fb",
 				function()
 					require("fzf-lua").buffers()
@@ -73,6 +95,34 @@ return {
 					require("fzf-lua").resume()
 				end,
 				desc = "Fzf Resume",
+			},
+			{
+				"<leader>fk",
+				function()
+					require("fzf-lua").keymaps()
+				end,
+				desc = "Find Keymaps",
+			},
+			{
+				"<leader>fc",
+				function()
+					require("fzf-lua").commands()
+				end,
+				desc = "Find Commands",
+			},
+			{
+				"<leader>fq",
+				function()
+					require("fzf-lua").quickfix()
+				end,
+				desc = "Find Quickfix",
+			},
+			{
+				"<leader>fl",
+				function()
+					require("fzf-lua").loclist()
+				end,
+				desc = "Find Location List",
 			},
 			{
 				"<leader>fd",
