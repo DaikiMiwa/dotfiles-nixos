@@ -10,16 +10,24 @@
 
 {
   imports = [
+    ./aerospace.nix
     ./codex.nix
     ./latex.nix
     ./nvim.nix
     ./tmux.nix
+    ./wezterm.nix
   ];
 
   # ===== 基本情報 =====
   home.username = username; # ← 自分のユーザー名
   home.homeDirectory = homeDirectory; # ← 同じく
   home.stateVersion = "25.11"; # 初回設定したNixOSバージョン
+  home.sessionVariables = {
+    PNPM_HOME = "${homeDirectory}/.local/share/pnpm";
+  };
+  home.sessionPath = [
+    "$PNPM_HOME"
+  ];
 
   # home-manager 自身を管理対象にする
   programs.home-manager.enable = true;
@@ -39,9 +47,18 @@
       nh
       nix-output-monitor
       nodejs_22
+      pnpm
+      yarn
+      bun
       python313
       gcc
       gnumake
+      go
+      rustc
+      cargo
+      rustfmt
+      clippy
+      luajit
       terraform
       terraform-ls
       tflint
@@ -66,10 +83,14 @@
       gh
       ghq
       lazygit
+      delta
+      jq
+      yq-go
       awscli2
       azure-cli
       google-cloud-sdk
       gemini-cli
+      repomix
       (textlint.withPackages [
         textlint-rule-preset-ja-spacing
         textlint-rule-preset-ja-technical-writing
@@ -245,9 +266,22 @@
     enableZshIntegration = true;
   };
 
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
   # ===== direnv (プロジェクトごとの環境切り替え。後で活躍する) =====
   programs.direnv = {
     enable = true;
+    package =
+      if pkgs.stdenv.isDarwin then
+        pkgs.direnv.overrideAttrs (_old: {
+          doCheck = false;
+          doInstallCheck = false;
+        })
+      else
+        pkgs.direnv;
     enableZshIntegration = true;
     nix-direnv.enable = true;
   };
