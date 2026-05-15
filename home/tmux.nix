@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  lib,
+  isWSL ? false,
+  ...
+}:
 
 let
   iconvPackage = if pkgs.stdenv.isLinux then pkgs.glibc.bin else pkgs.libiconv;
@@ -256,6 +261,8 @@ in
 {
   home.packages = [
     tmux-session-manager
+  ]
+  ++ lib.optionals isWSL [
     codex-wsl-clipboard-image
     codex-wsl-paste-image
   ];
@@ -291,12 +298,12 @@ in
       set -g set-clipboard on
       set -g allow-passthrough on
 
-      run-shell 'if uname -r | grep -qi microsoft; then \
-        tmux bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"; \
-        tmux bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"; \
-        tmux bind-key p run-shell "${tmux-wsl-paste}/bin/tmux-wsl-paste | tmux load-buffer - && tmux paste-buffer"; \
-        tmux bind-key I run-shell "${codex-wsl-paste-image}/bin/codex-wsl-paste-image"; \
-      fi'
+      ${lib.optionalString isWSL ''
+        bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"
+        bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "${tmux-wsl-copy}/bin/tmux-wsl-copy"
+        bind-key p run-shell "${tmux-wsl-paste}/bin/tmux-wsl-paste | tmux load-buffer - && tmux paste-buffer"
+        bind-key I run-shell "${codex-wsl-paste-image}/bin/codex-wsl-paste-image"
+      ''}
 
       set -g update-environment 'DISPLAY WAYLAND_DISPLAY COLORTERM SSH_AUTH_SOCK SSH_CONNECTION WINDOWID XAUTHORITY PATH WSL_INTEROP'
 
