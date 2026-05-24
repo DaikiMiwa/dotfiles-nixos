@@ -39,6 +39,9 @@ let
     approval_policy = "never"
     sandbox_mode = "workspace-write"
 
+    [features]
+    goals = true
+
     [projects."${homeDirectory}/src/github.com/daiki.miwa"]
     trust_level = "trusted"
   '';
