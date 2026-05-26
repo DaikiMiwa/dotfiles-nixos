@@ -29,10 +29,7 @@
 
   users.users.${username} = {
     isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "docker"
-    ];
+    extraGroups = [ "wheel" ];
     linger = true;
     shell = pkgs.zsh;
   };
@@ -100,16 +97,29 @@
   };
 
   virtualisation.docker = {
-    enable = true;
-    autoPrune = {
+    rootless = {
       enable = true;
-      dates = "weekly";
+      setSocketVariable = true;
     };
   };
 
-  systemd.sockets.docker.socketConfig = {
-    SocketGroup = "docker";
-    SocketMode = "0660";
+  systemd.user.services.docker-prune = {
+    description = "Prune Docker resources (Rootless)";
+    after = [ "docker.service" ];
+    requires = [ "docker.service" ];
+    environment.DOCKER_HOST = "unix://%t/docker.sock";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${lib.getExe pkgs.docker} system prune -f";
+    };
+  };
+
+  systemd.user.timers.docker-prune = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "weekly";
+      Persistent = true;
+    };
   };
 
   environment.systemPackages = with pkgs; [
