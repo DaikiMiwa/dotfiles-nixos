@@ -129,6 +129,7 @@
     unzip
 
     # CLI ユーティリティ
+    bubblewrap
     jq # JSON 整形
     tree
     htop
@@ -146,6 +147,8 @@
   };
 
   systemd.tmpfiles.rules = [
+    "d /usr/bin 0755 root root -"
+    "L+ /usr/bin/bash - - - - ${pkgs.bashInteractive}/bin/bash"
     "d /opt/google/chrome 0755 root root -"
     "L+ /opt/google/chrome/chrome - - - - ${pkgs.chromium}/bin/chromium"
   ];

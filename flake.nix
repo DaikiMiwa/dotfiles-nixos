@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
@@ -19,6 +20,7 @@
     {
       self,
       nixpkgs,
+      nixpkgs-unstable,
       home-manager,
       nixos-wsl,
       ...
@@ -32,6 +34,7 @@
       ];
       supportedSystems = [ linuxSystem ] ++ darwinSystems;
       unfreePackageNames = [
+        "claude-code"
         "terraform"
       ];
 
@@ -42,6 +45,13 @@
       pkgsFor =
         system:
         import nixpkgs {
+          inherit system;
+          config = nixpkgsConfig;
+        };
+
+      unstablePkgsFor =
+        system:
+        import nixpkgs-unstable {
           inherit system;
           config = nixpkgsConfig;
         };
@@ -260,6 +270,8 @@
         system:
         let
           pkgs = pkgsFor system;
+          awscli2Package = (unstablePkgsFor system).awscli2;
+          claudeCodePackage = (unstablePkgsFor system).claude-code;
           homeDirectory = if pkgs.stdenv.isDarwin then "/Users/${username}" else "/home/${username}";
         in
         home-manager.lib.homeManagerConfiguration {
@@ -268,7 +280,12 @@
             ./home/home.nix
           ];
           extraSpecialArgs = {
-            inherit username homeDirectory;
+            inherit
+              username
+              homeDirectory
+              awscli2Package
+              claudeCodePackage
+              ;
             isWSL = false;
           };
         };
@@ -335,6 +352,8 @@
               inherit username;
               homeDirectory = "/home/${username}";
               isWSL = true;
+              awscli2Package = (unstablePkgsFor linuxSystem).awscli2;
+              claudeCodePackage = (unstablePkgsFor linuxSystem).claude-code;
             };
             home-manager.users.${username} = import ./home/home.nix;
           }
