@@ -14,6 +14,7 @@
     ./antigravity.nix
     ./codex.nix
     ./latex.nix
+    ./moshi.nix
     ./nvim.nix
     ./tmux.nix
     ./wezterm.nix
