@@ -11,6 +11,7 @@
 {
   imports = [
     ./aerospace.nix
+    ./antigravity.nix
     ./codex.nix
     ./latex.nix
     ./nvim.nix
@@ -89,7 +90,6 @@
       awscli2
       azure-cli
       google-cloud-sdk
-      gemini-cli
       repomix
       (textlint.withPackages [
         textlint-rule-preset-ja-spacing
