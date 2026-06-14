@@ -13,6 +13,7 @@ NixOS-WSL と Home Manager で管理する個人用 dotfiles です。
 - `home/nvim/`: Neovim の Lua 設定
 - `home/tmux.nix`: tmux とセッション管理コマンド
 - `home/codex.nix`: Codex CLI とユーザー設定
+- `home/opencode.nix`: opencode CLI
 
 ## 前提
 
@@ -69,6 +70,7 @@ sudo nixos-rebuild switch --flake .#nixos-wsl
 - terminal multiplexer: tmux
 - containers: Docker, Docker Compose
 - CLI tools: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `gh`, `ghq`, `lazygit`
+- AI coding CLIs: Codex CLI, opencode
 - cloud CLIs: AWS CLI, Azure CLI, Google Cloud CLI
 - development tools: Node.js, Python, Terraform, Lua, TypeScript, Nix 関連ツール
 - writing tools: LaTeX, BibLaTeX/Biber, Pandoc, Poppler utilities
