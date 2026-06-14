@@ -7,7 +7,7 @@ This repository contains personal NixOS-WSL and Home Manager dotfiles.
 - `flake.nix` defines inputs, dev shells, Home Manager outputs, and the `nixos-wsl` system.
 - `nixos/configuration.nix` contains WSL system settings such as users, Docker, fonts, and browser automation.
 - `home/home.nix` is the main Home Manager module and imports feature modules.
-- `home/codex.nix`, `home/tmux.nix`, and `home/nvim.nix` manage Codex CLI, tmux, and Neovim.
+- `home/codex.nix`, `home/opencode.nix`, `home/tmux.nix`, and `home/nvim.nix` manage Codex CLI, opencode, tmux, and Neovim.
 - `home/nvim/` contains Lua-based Neovim configuration and plugin specs.
 - `docs/` contains workflow notes, currently React Native / Expo guidance.
 

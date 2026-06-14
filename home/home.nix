@@ -16,6 +16,7 @@
     ./latex.nix
     ./moshi.nix
     ./nvim.nix
+    ./opencode.nix
     ./tmux.nix
     ./wezterm.nix
   ];
