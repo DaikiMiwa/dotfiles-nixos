@@ -41,6 +41,11 @@
     package = pkgs.jdk21; # Java JDK
   };
 
+  # VSCode Remote-WSL のサーバ(prebuilt な node)を NixOS で動かすため。
+  # /lib64/ld-linux-x86-64.so.2 を提供し NIX_LD をシステム全体に設定するので
+  # wsl.exe --exec 経由でサーバが起動されても動く。wget は systemPackages に既にあり。
+  programs.nix-ld.enable = true;
+
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
