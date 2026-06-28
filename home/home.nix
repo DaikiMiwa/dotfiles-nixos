@@ -97,7 +97,7 @@
       yq-go
       awscli2Package
       claudeCodePackage
-      azure-cli
+      (azure-cli.withExtensions [ azure-cli.extensions.azure-devops ])
       google-cloud-sdk
       gemini-cli
       repomix
@@ -249,7 +249,8 @@
     settings = {
       user = {
         name = "Daiki Miwa";
-        email = "miwa.daiki.mllab.nit@gmail.com";
+        # このマシン (WSL の nixos-wsl 構成) だけ仕事用メール、他は個人 gmail
+        email = if isWSL then "daiki.miwa@accenture.com" else "miwa.daiki.mllab.nit@gmail.com";
       };
       init.defaultBranch = "main";
       pull.rebase = false;
