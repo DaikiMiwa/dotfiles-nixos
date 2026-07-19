@@ -14,6 +14,8 @@
       url = "github:nix-community/NixOS-WSL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    herdr.url = "github:ogulcancelik/herdr/v0.7.4";
   };
 
   outputs =
@@ -22,6 +24,7 @@
       nixpkgs,
       nixpkgs-unstable,
       home-manager,
+      herdr,
       nixos-wsl,
       ...
     }:
@@ -272,6 +275,7 @@
           pkgs = pkgsFor system;
           awscli2Package = (unstablePkgsFor system).awscli2;
           claudeCodePackage = (unstablePkgsFor system).claude-code;
+          herdrPackage = herdr.packages.${system}.default;
           homeDirectory = if pkgs.stdenv.isDarwin then "/Users/${username}" else "/home/${username}";
         in
         home-manager.lib.homeManagerConfiguration {
@@ -285,6 +289,7 @@
               homeDirectory
               awscli2Package
               claudeCodePackage
+              herdrPackage
               ;
             isWSL = false;
           };
@@ -354,6 +359,7 @@
               isWSL = true;
               awscli2Package = (unstablePkgsFor linuxSystem).awscli2;
               claudeCodePackage = (unstablePkgsFor linuxSystem).claude-code;
+              herdrPackage = herdr.packages.${linuxSystem}.default;
             };
             home-manager.users.${username} = import ./home/home.nix;
           }
