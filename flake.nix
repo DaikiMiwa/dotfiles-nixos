@@ -51,7 +51,7 @@
 
       unstablePkgsFor =
         system:
-        import nixpkgs-unstable {
+        import (if system == "x86_64-darwin" then nixpkgs else nixpkgs-unstable) {
           inherit system;
           config = nixpkgsConfig;
         };
@@ -348,6 +348,9 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
+            environment.systemPackages = [
+              home-manager.packages.${linuxSystem}.home-manager
+            ];
             home-manager.extraSpecialArgs = {
               inherit username;
               homeDirectory = "/home/${username}";
