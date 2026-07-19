@@ -7,11 +7,11 @@
 }:
 
 let
-  codexVersion = "0.136.0";
+  codexVersion = "0.144.6";
   codexReleasePrefix = "rust-v";
-  linuxHash = "sha256-2trWydt0UArVQx+heLMCiP292mvfM5djTbbh9ZgTIc8=";
-  aarch64DarwinHash = "sha256-X+H279zcoR8sZKUlF9ok4qq7ly/UPVbTaxBux1tNfTs=";
-  x86DarwinHash = "sha256-4vjrjHsHbeIkgtJemcBzBLNaXtLkvy6R4CV9W0JxyFI=";
+  linuxHash = "sha256-ap3vUaCtjOpmhNjrO/AzyJ8z47xc/kkvGh4KcYRRocY=";
+  aarch64DarwinHash = "sha256-AjWQ+Ci8lQesYRMu415008XTP7W6Phyk/C4BOi9xo9c=";
+  x86DarwinHash = "sha256-djyBpWuiSk9sL9JW7X7hd1yuzNIlN9KIh96PaGSsWUc=";
 
   codexTargets = {
     x86_64-linux = {
