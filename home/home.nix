@@ -4,6 +4,8 @@
   lib,
   username,
   homeDirectory,
+  awscli2Package ? pkgs.awscli2,
+  claudeCodePackage ? pkgs.claude-code,
   isWSL ? false,
   ...
 }:
@@ -27,9 +29,16 @@
   home.stateVersion = "25.11"; # 初回設定したNixOSバージョン
   home.sessionVariables = {
     PNPM_HOME = "${homeDirectory}/.local/share/pnpm";
+  }
+  // lib.optionalAttrs isWSL {
+    BROWSER = "wslview";
   };
   home.sessionPath = [
     "$PNPM_HOME"
+  ]
+  ++ lib.optionals isWSL [
+    "/mnt/c/Windows"
+    "/mnt/c/Windows/System32"
   ];
 
   # home-manager 自身を管理対象にする
@@ -89,8 +98,9 @@
       delta
       jq
       yq-go
-      awscli2
-      azure-cli
+      awscli2Package
+      claudeCodePackage
+      (azure-cli.withExtensions [ azure-cli.extensions.azure-devops ])
       google-cloud-sdk
       repomix
       (textlint.withPackages [
@@ -105,6 +115,7 @@
     ]
     ++ lib.optionals isWSL [
       wslu
+      xdg-utils
     ]
     ++ lib.optionals (pkgs.stdenv.isLinux && !isWSL) [
       wl-clipboard
@@ -181,6 +192,8 @@
       hi = "echo 'Hello from home-manager!'"; # ← 追加
     }
     // lib.optionalAttrs isWSL {
+      open = "wslview";
+      explorer = "explorer.exe";
       nixos-switch = "sudo nh os switch ${homeDirectory}/dotfiles-nixos#nixos-wsl";
     };
     initContent = ''
@@ -238,7 +251,8 @@
     settings = {
       user = {
         name = "Daiki Miwa";
-        email = "miwa.daiki.mllab.nit@gmail.com";
+        # このマシン (WSL の nixos-wsl 構成) だけ仕事用メール、他は個人 gmail
+        email = if isWSL then "daiki.miwa@accenture.com" else "miwa.daiki.mllab.nit@gmail.com";
       };
       init.defaultBranch = "main";
       pull.rebase = false;

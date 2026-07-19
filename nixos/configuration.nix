@@ -29,10 +29,7 @@
 
   users.users.${username} = {
     isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "docker"
-    ];
+    extraGroups = [ "wheel" ];
     linger = true;
     shell = pkgs.zsh;
   };
@@ -43,6 +40,11 @@
     enable = true;
     package = pkgs.jdk21; # Java JDK
   };
+
+  # VSCode Remote-WSL のサーバ(prebuilt な node)を NixOS で動かすため。
+  # /lib64/ld-linux-x86-64.so.2 を提供し NIX_LD をシステム全体に設定するので
+  # wsl.exe --exec 経由でサーバが起動されても動く。wget は systemPackages に既にあり。
+  programs.nix-ld.enable = true;
 
   nix.settings.experimental-features = [
     "nix-command"
@@ -100,16 +102,29 @@
   };
 
   virtualisation.docker = {
-    enable = true;
-    autoPrune = {
+    rootless = {
       enable = true;
-      dates = "weekly";
+      setSocketVariable = true;
     };
   };
 
-  systemd.sockets.docker.socketConfig = {
-    SocketGroup = "docker";
-    SocketMode = "0660";
+  systemd.user.services.docker-prune = {
+    description = "Prune Docker resources (Rootless)";
+    after = [ "docker.service" ];
+    requires = [ "docker.service" ];
+    environment.DOCKER_HOST = "unix://%t/docker.sock";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${lib.getExe pkgs.docker} system prune -f";
+    };
+  };
+
+  systemd.user.timers.docker-prune = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "weekly";
+      Persistent = true;
+    };
   };
 
   environment.systemPackages = with pkgs; [
@@ -119,6 +134,7 @@
     unzip
 
     # CLI ユーティリティ
+    bubblewrap
     jq # JSON 整形
     tree
     htop
@@ -136,6 +152,8 @@
   };
 
   systemd.tmpfiles.rules = [
+    "d /usr/bin 0755 root root -"
+    "L+ /usr/bin/bash - - - - ${pkgs.bashInteractive}/bin/bash"
     "d /opt/google/chrome 0755 root root -"
     "L+ /opt/google/chrome/chrome - - - - ${pkgs.chromium}/bin/chromium"
   ];
