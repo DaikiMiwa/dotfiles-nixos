@@ -129,6 +129,7 @@
 
   environment.systemPackages = with pkgs; [
     # 基本
+    bashInteractive
     curl
     wget
     unzip
@@ -152,6 +153,7 @@
   };
 
   systemd.tmpfiles.rules = [
+    "L+ /bin/bash - - - - ${pkgs.bashInteractive}/bin/bash"
     "d /usr/bin 0755 root root -"
     "L+ /usr/bin/bash - - - - ${pkgs.bashInteractive}/bin/bash"
     "d /opt/google/chrome 0755 root root -"
