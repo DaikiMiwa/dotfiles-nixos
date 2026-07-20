@@ -94,6 +94,7 @@
       bash-language-server
       sqls
       gh
+      git-remote-codecommit
       ghq
       lazygit
       delta
@@ -200,6 +201,10 @@
     initContent = ''
       # ここに自由に zsh 設定を書ける
       bindkey -e   # Emacs キーバインド
+      bindkey '^[[H' beginning-of-line
+      bindkey '^[[F' end-of-line
+      bindkey '^[OH' beginning-of-line
+      bindkey '^[OF' end-of-line
       setopt AUTO_CD
 
       ${lib.optionalString isWSL ''

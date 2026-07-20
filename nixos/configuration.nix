@@ -14,6 +14,9 @@
   ...
 }:
 
+let
+  dockerPackage = pkgs.docker_29;
+in
 {
   imports = [
     # include NixOS-WSL modules
@@ -102,8 +105,10 @@
   };
 
   virtualisation.docker = {
+    package = dockerPackage;
     rootless = {
       enable = true;
+      package = dockerPackage;
       setSocketVariable = true;
     };
   };
@@ -115,7 +120,7 @@
     environment.DOCKER_HOST = "unix://%t/docker.sock";
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${lib.getExe pkgs.docker} system prune -f";
+      ExecStart = "${lib.getExe dockerPackage} system prune -f";
     };
   };
 
