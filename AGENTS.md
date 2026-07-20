@@ -30,13 +30,13 @@ Format Nix files with `nixfmt-rfc-style` before committing. Keep modules small a
 
 Run the evaluation commands above after changing `flake.nix`, `home/*.nix`, or `nixos/*.nix`. For Neovim changes, ensure `home/nvim/lazy-lock.json` is updated when plugin versions change. If adding shell helpers, prefer `pkgs.writeShellApplication` so runtime dependencies are explicit.
 
-## Commit & Pull Request Guidelines
+## Commit & Push Guidelines
 
 Recent commits use short imperative messages, often with a scope, such as `nix: manage WSL and home environment` or `docs: document dev shell workflows`. Keep commits grouped by concern: configuration, editor setup, docs, or cleanup.
 
-Pull requests should include a summary, validation commands run, and notes for any manual post-apply steps such as restarting tmux or re-entering WSL.
+This is a personal repository. For routine changes, work directly on `main`: stage only the intended files, commit with an imperative message, run the relevant validation commands, and push `main` to `origin`. Do not create a topic branch, open a pull request, or start a review agent unless explicitly requested.
 
-When completing a change end-to-end, create a topic branch first, stage the intended files, commit with an imperative message, push the branch, and open a pull request. Start a review agent to review the pull request before merging. If the review agent reports no blocking issues, merge the pull request and clean up the branch as appropriate.
+Before pushing, include a short summary of the change and the validation commands run. Note any manual post-apply steps such as restarting tmux, restarting Herdr, or re-entering WSL.
 
 ## Security & Configuration Tips
 
