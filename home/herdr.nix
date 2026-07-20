@@ -176,6 +176,14 @@ lib.mkIf (herdrPackage != null) {
       navigate_pane_down = "j";
       navigate_pane_up = "k";
       navigate_pane_right = "l";
+      navigate_workspace_up = [
+        "up"
+        "ctrl+p"
+      ];
+      navigate_workspace_down = [
+        "down"
+        "ctrl+n"
+      ];
       swap_pane_left = "prefix+shift+h";
       swap_pane_down = "prefix+shift+j";
       swap_pane_up = "prefix+shift+k";
@@ -243,6 +251,7 @@ lib.mkIf (herdrPackage != null) {
       pane_gaps = false;
       show_agent_labels_on_pane_borders = false;
       confirm_close = true;
+      hide_tab_bar_when_single_tab = true;
       prompt_new_tab_name = false;
       sidebar_collapsed_mode = "compact";
       toast = {
