@@ -19,6 +19,7 @@
     ./moshi.nix
     ./nvim.nix
     ./opencode.nix
+    ./herdr.nix
     ./tmux.nix
     ./wezterm.nix
   ];
