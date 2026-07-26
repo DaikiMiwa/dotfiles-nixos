@@ -46,6 +46,10 @@ sudo nixos-rebuild switch --flake .#nixos-wsl
 有効化しています。サーバーの取得に必要な `wget` と `curl` も
 システム環境に含まれます。
 
+Cursor のインストールスクリプトがNixOSで失敗する原因、互換リンク、
+実機での検証手順は
+[`docs/cursor-wsl-nixos.md`](docs/cursor-wsl-nixos.md) にまとめています。
+
 まず WSL 側へ設定を適用します。
 
 ```bash
