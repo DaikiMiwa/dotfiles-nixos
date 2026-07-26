@@ -39,6 +39,58 @@ sudo nixos-rebuild switch --flake .#nixos-wsl
 
 初回適用後は、Home Manager も NixOS モジュールとして一緒に適用されます。
 
+## Cursor / VS Code から WSL を使う
+
+`nixos/configuration.nix` では、Cursor Server と VS Code Server の
+ビルド済み Node.js を NixOS-WSL 上で実行するために `programs.nix-ld` を
+有効化しています。サーバーの取得に必要な `wget` と `curl` も
+システム環境に含まれます。
+
+まず WSL 側へ設定を適用します。
+
+```bash
+cd ~/dotfiles-nixos
+sudo nixos-rebuild switch --flake .#nixos-wsl
+```
+
+適用後、Windows の PowerShell から WSL を完全に停止して起動し直します。
+
+```powershell
+wsl --shutdown
+wsl -d NixOS
+```
+
+Windows 側には
+[Cursor](https://cursor.com/download) と
+[VS Code](https://code.visualstudio.com/download) をインストールします。
+それぞれ別のユーザー設定と拡張機能を持つため、両方を併用できます。
+
+- Cursor: 内蔵の Anysphere 製 `anysphere.remote-wsl` を使います。
+  Cursor には Microsoft 製 `ms-vscode-remote.remote-wsl` を追加しません。
+- VS Code: Extensions から Microsoft 製 `WSL`
+  (`ms-vscode-remote.remote-wsl`) をインストールします。
+
+各エディタでコマンドパレットを開き、`WSL: Connect to WSL using Distro...`
+から `NixOS` を選択してください。接続後は `File: Open Folder...` で
+`/home/daiki.miwa/dotfiles-nixos` を開けます。左下のリモート接続表示が
+`WSL: NixOS` になれば接続完了です。
+
+接続できない場合は、WSL 側で次を確認します。
+
+```bash
+test -e /lib64/ld-linux-x86-64.so.2
+command -v wget
+echo "$WSL_DISTRO_NAME"
+```
+
+古いリモートサーバーが残っている場合に限り、両方のエディタを完全に閉じて
+該当ディレクトリを退避し、再接続してサーバーを再導入します。
+
+```bash
+mv ~/.cursor-server ~/.cursor-server.backup
+mv ~/.vscode-server ~/.vscode-server.backup
+```
+
 ### macOS
 
 macOS では Nix と Home Manager を用意したうえで、CPU に合わせて次を実行します。
