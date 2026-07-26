@@ -14,7 +14,9 @@
   imports = [
     ./aerospace.nix
     ./antigravity.nix
+    ./claude-code.nix
     ./codex.nix
+    ./cursor-cli.nix
     ./latex.nix
     ./moshi.nix
     ./nvim.nix
@@ -101,7 +103,6 @@
       jq
       yq-go
       awscli2Package
-      claudeCodePackage
       (azure-cli.withExtensions [ azure-cli.extensions.azure-devops ])
       google-cloud-sdk
       repomix

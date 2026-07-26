@@ -44,6 +44,9 @@ let
 
     [projects."${homeDirectory}/src/github.com/daiki.miwa"]
     trust_level = "trusted"
+
+    [projects."${homeDirectory}/dotfiles-nixos"]
+    trust_level = "trusted"
   '';
 
   codex-bin = pkgs.stdenvNoCC.mkDerivation {
@@ -169,12 +172,20 @@ in
     codex-update-version
   ];
 
-  home.file = lib.mkIf isWSL {
-    ".codex/config.toml" = {
-      text = codexConfigText;
-      force = true;
-    };
+  home.activation.initializeCodexConfig = lib.mkIf isWSL (
+    lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+      config_dir="${homeDirectory}/.codex"
+      config_file="$config_dir/config.toml"
 
+      run mkdir -p "$config_dir"
+
+      if [ ! -e "$config_file" ]; then
+        run install -m 600 ${pkgs.writeText "codex-config.toml" codexConfigText} "$config_file"
+      fi
+    ''
+  );
+
+  home.file = lib.mkIf isWSL {
     ".codex-app/sessions/.keep".text = "";
     ".codex-app/worktrees/.keep".text = "";
 
