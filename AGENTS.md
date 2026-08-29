@@ -41,3 +41,8 @@ Before pushing, include a short summary of the change and the validation command
 ## Security & Configuration Tips
 
 Do not commit secrets, tokens, local Codex state, or machine-specific credentials. Keep `~/.ssh/config.local` outside the repository. `.codex` is ignored intentionally; Codex configuration is generated through Home Manager without storing credentials.
+
+## Interaction & Communication Guidelines
+
+- ユーザーに対して質問を投げかけた際、ユーザーがその質問に明確に回答しなかった（あるいは別の話題に逸れた）場合は、そのまま作業を進めるのではなく、質問に対する回答をしっかりと追求し、明確な回答を得るようにしてください。
+- 長期にわたる、あるいはステップの多い複雑な作業になる場合は、必ず `todo.md` などのアーティファクトを作成・更新し、タスクの進捗状況をユーザーと共有しながら管理してください。

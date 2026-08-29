@@ -4,6 +4,7 @@
   "colorbuddy.nvim": { "branch": "master", "commit": "8b968581e5c19d22a861d5f3fe5dbd83394fa681" },
   "conform.nvim": { "branch": "master", "commit": "619363c30309d29ffa631e67c8183f2a72caa373" },
   "copilot.lua": { "branch": "master", "commit": "1d457ad5f267b8ef855a6b8b3fe152403cb00947" },
+  "cursor.nvim": { "branch": "master", "commit": "d902a80388f4ad685a850a5d3b8ebc2c56aa45f5" },
   "friendly-snippets": { "branch": "main", "commit": "6cd7280adead7f586db6fccbd15d2cac7e2188b9" },
   "fzf-lua": { "branch": "main", "commit": "988416cc782dfe28bff3f0da9b8c943b236cd86a" },
   "gitsigns.nvim": { "branch": "main", "commit": "25050e4ed39e628282831d4cbecb1850454ce915" },

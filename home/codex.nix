@@ -7,11 +7,11 @@
 }:
 
 let
-  codexVersion = "0.144.6";
+  codexVersion = "0.147.0";
   codexReleasePrefix = "rust-v";
-  linuxHash = "sha256-ap3vUaCtjOpmhNjrO/AzyJ8z47xc/kkvGh4KcYRRocY=";
-  aarch64DarwinHash = "sha256-AjWQ+Ci8lQesYRMu415008XTP7W6Phyk/C4BOi9xo9c=";
-  x86DarwinHash = "sha256-djyBpWuiSk9sL9JW7X7hd1yuzNIlN9KIh96PaGSsWUc=";
+  linuxHash = "sha256-Akbi53ODTgfw+1JJ7W660S5FkeYI+Me7l91qlpBUTDY=";
+  aarch64DarwinHash = "sha256-dZhLgfkqcbDA9LO1ytgOXFcXfk2Mi0seE9twOyDcQ1g=";
+  x86DarwinHash = "sha256-NueC9x2BZMw3wricZJSPIYDpovhFayfmYNp1vGtVdOI=";
 
   codexTargets = {
     x86_64-linux = {
@@ -185,16 +185,23 @@ in
     ''
   );
 
-  home.file = lib.mkIf isWSL {
-    ".codex-app/sessions/.keep".text = "";
-    ".codex-app/worktrees/.keep".text = "";
+  home.file =
+    {
+      ".codex/AGENTS.md" = {
+        source = ./codex/AGENTS.md;
+        force = true;
+      };
+    }
+    // lib.optionalAttrs isWSL {
+      ".codex-app/sessions/.keep".text = "";
+      ".codex-app/worktrees/.keep".text = "";
 
-    ".profile".text = ''
-      # Codex Desktop on Windows + WSL workaround
-      # Keep Codex WSL runtime state on the Linux filesystem.
-      if [ "$CODEX_INTERNAL_ORIGINATOR_OVERRIDE" = "Codex Desktop" ]; then
-        export CODEX_HOME="$HOME/.codex-app"
-      fi
-    '';
-  };
+      ".profile".text = ''
+        # Codex Desktop on Windows + WSL workaround
+        # Keep Codex WSL runtime state on the Linux filesystem.
+        if [ "$CODEX_INTERNAL_ORIGINATOR_OVERRIDE" = "Codex Desktop" ]; then
+          export CODEX_HOME="$HOME/.codex-app"
+        fi
+      '';
+    };
 }
