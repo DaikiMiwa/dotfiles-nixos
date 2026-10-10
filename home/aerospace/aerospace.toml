@@ -114,15 +114,7 @@ alt-2 = 'workspace 2'
 alt-3 = 'workspace 3'
 alt-4 = 'workspace 4'
 
-alt-a = 'workspace A' # In your config, you can drop workspace bindings that you don't need
-alt-s = 'workspace S'
-alt-d = 'workspace D'
 alt-f = 'fullscreen'
-
-alt-shift-a = 'move-node-to-workspace A'
-alt-shift-s = 'move-node-to-workspace S'
-alt-shift-d = 'move-node-to-workspace D'
-alt-shift-f = 'move-node-to-workspace F'
 
 alt-shift-1 = 'move-node-to-workspace 1'
 alt-shift-2 = 'move-node-to-workspace 2'
@@ -151,9 +143,3 @@ alt-shift-h = ['join-with left', 'mode main']
 alt-shift-j = ['join-with down', 'mode main']
 alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
-
-[workspace-to-monitor-force-assignment]
-    1 = 'secondary'
-    2 = 'secondary'
-    3 = 'secondary'
-    4 = 'secondary'

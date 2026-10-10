@@ -5,7 +5,6 @@
   username,
   homeDirectory,
   awscli2Package ? pkgs.awscli2,
-  claudeCodePackage ? pkgs.claude-code,
   isWSL ? false,
   ...
 }:
@@ -21,8 +20,6 @@ in
   imports = [
     ./aerospace.nix
     ./antigravity.nix
-    ./claude-code.nix
-    ./codex.nix
     ./cursor-cli.nix
     ./latex.nix
     ./moshi.nix

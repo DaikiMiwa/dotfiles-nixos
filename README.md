@@ -2,7 +2,7 @@
 
 NixOS-WSL と Home Manager で管理する個人用 dotfiles です。
 
-このリポジトリでは、WSL 上の NixOS システム設定、macOS/Linux 共通の Home Manager ユーザー環境、Neovim、tmux、Codex CLI まわりの設定を flake としてまとめています。
+このリポジトリでは、WSL 上の NixOS システム設定、macOS/Linux 共通の Home Manager ユーザー環境、Neovim、tmux の設定を flake としてまとめています。Codex と Claude Code は Homebrew で管理します。
 
 ## 構成
 
@@ -12,7 +12,6 @@ NixOS-WSL と Home Manager で管理する個人用 dotfiles です。
 - `home/nvim.nix`: Neovim 設定ディレクトリの配置
 - `home/nvim/`: Neovim の Lua 設定
 - `home/tmux.nix`: tmux とセッション管理コマンド
-- `home/codex.nix`: Codex CLI とユーザー設定
 - `home/opencode.nix`: opencode CLI
 
 ## 前提
@@ -28,6 +27,17 @@ username = "daiki.miwa";
 ```
 
 ## 適用
+
+### Codex / Claude Code
+
+Codex と Claude Code は Homebrew で管理します。初回導入と更新は次を実行します。
+
+```bash
+brew bundle --file=./Brewfile
+brew upgrade --cask codex claude-code
+```
+
+Homebrew が管理する `~/.codex` と `~/.claude` の設定は、このリポジトリからは変更しません。
 
 ### NixOS-WSL
 
@@ -126,7 +136,7 @@ sudo nixos-rebuild switch --flake .#nixos-wsl
 - terminal multiplexer: tmux
 - containers: Docker, Docker Compose
 - CLI tools: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `gh`, `ghq`, `lazygit`
-- AI coding CLIs: Codex CLI, opencode
+- AI coding CLI: opencode
 - cloud CLIs: AWS CLI, Azure CLI, Google Cloud CLI
 - development tools: Node.js, Python, Terraform, Lua, TypeScript, Nix 関連ツール
 - writing tools: LaTeX, BibLaTeX/Biber, Pandoc, Poppler utilities

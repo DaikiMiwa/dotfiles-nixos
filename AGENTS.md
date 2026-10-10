@@ -7,7 +7,7 @@ This repository contains personal NixOS-WSL and Home Manager dotfiles.
 - `flake.nix` defines inputs, dev shells, Home Manager outputs, and the `nixos-wsl` system.
 - `nixos/configuration.nix` contains WSL system settings such as users, Docker, fonts, and browser automation.
 - `home/home.nix` is the main Home Manager module and imports feature modules.
-- `home/codex.nix`, `home/opencode.nix`, `home/tmux.nix`, and `home/nvim.nix` manage Codex CLI, opencode, tmux, and Neovim.
+- `home/opencode.nix`, `home/tmux.nix`, and `home/nvim.nix` manage opencode, tmux, and Neovim.
 - `home/nvim/` contains Lua-based Neovim configuration and plugin specs.
 - `docs/` contains workflow notes, currently React Native / Expo guidance.
 
@@ -24,7 +24,7 @@ There is no application source tree or test suite; validation is primarily Nix e
 
 ## Coding Style & Naming Conventions
 
-Format Nix files with `nixfmt-rfc-style` before committing. Keep modules small and purpose-based, for example `home/tmux.nix` for tmux and `home/codex.nix` for Codex. Use two-space indentation in Nix and Lua where practical. Prefer declarative Nix options over activation scripts unless no option exists. Avoid hard-coded user paths; use `username` and `homeDirectory`.
+Format Nix files with `nixfmt-rfc-style` before committing. Keep modules small and purpose-based, for example `home/tmux.nix` for tmux. Use two-space indentation in Nix and Lua where practical. Prefer declarative Nix options over activation scripts unless no option exists. Avoid hard-coded user paths; use `username` and `homeDirectory`.
 
 ## Testing Guidelines
 

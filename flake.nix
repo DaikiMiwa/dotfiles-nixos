@@ -37,7 +37,6 @@
       ];
       supportedSystems = [ linuxSystem ] ++ darwinSystems;
       unfreePackageNames = [
-        "claude-code"
         "terraform"
       ];
 
@@ -274,7 +273,6 @@
         let
           pkgs = pkgsFor system;
           awscli2Package = (unstablePkgsFor system).awscli2;
-          claudeCodePackage = (unstablePkgsFor system).claude-code;
           herdrPackage = herdr.packages.${system}.default;
           homeDirectory = if pkgs.stdenv.isDarwin then "/Users/${username}" else "/home/${username}";
         in
@@ -288,7 +286,6 @@
               username
               homeDirectory
               awscli2Package
-              claudeCodePackage
               herdrPackage
               ;
             isWSL = false;
@@ -361,7 +358,6 @@
               homeDirectory = "/home/${username}";
               isWSL = true;
               awscli2Package = (unstablePkgsFor linuxSystem).awscli2;
-              claudeCodePackage = (unstablePkgsFor linuxSystem).claude-code;
               herdrPackage = herdr.packages.${linuxSystem}.default;
             };
             home-manager.users.${username} = import ./home/home.nix;

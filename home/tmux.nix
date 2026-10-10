@@ -277,6 +277,9 @@ in
     prefix = "M-b";
     shell = "${pkgs.zsh}/bin/zsh";
     terminal = "tmux-256color";
+    plugins = [
+      pkgs.tmuxPlugins.resurrect
+    ];
 
     extraConfig = ''
       bind-key M-b send-prefix
