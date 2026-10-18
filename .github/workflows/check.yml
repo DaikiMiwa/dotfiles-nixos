@@ -1,0 +1,50 @@
+name: Check dotfiles
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dotfiles-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            system: x86_64-linux
+          - runner: macos-15
+            system: aarch64-darwin
+          - runner: macos-15-intel
+            system: x86_64-darwin
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Evaluate all supported outputs
+        run: nix flake check --all-systems --no-build --show-trace
+      - name: Build format, shell, CLI and Neovim checks
+        env:
+          NIX_SYSTEM: ${{ matrix.system }}
+        run: |
+          nix build --no-link --print-build-logs \
+            ".#checks.$NIX_SYSTEM.format-nix" \
+            ".#checks.$NIX_SYSTEM.format-lua" \
+            ".#checks.$NIX_SYSTEM.shell-scripts" \
+            ".#checks.$NIX_SYSTEM.cursor-cli" \
+            ".#checks.$NIX_SYSTEM.dotfiles-helpers" \
+            ".#checks.$NIX_SYSTEM.neovim-config"

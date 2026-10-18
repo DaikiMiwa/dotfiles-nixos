@@ -4,7 +4,6 @@
   lib,
   username,
   homeDirectory,
-  awscli2Package ? pkgs.awscli2,
   isWSL ? false,
   ...
 }:
@@ -21,6 +20,7 @@ in
     ./aerospace.nix
     ./antigravity.nix
     ./cursor-cli.nix
+    ./dotfiles.nix
     ./latex.nix
     ./moshi.nix
     ./nvim.nix
@@ -28,6 +28,11 @@ in
     ./herdr.nix
     ./tmux.nix
     ./wezterm.nix
+    ./packages/cli.nix
+    ./packages/cloud.nix
+    ./packages/development.nix
+    ./packages/desktop.nix
+    ./packages/writing.nix
   ];
 
   # ===== 基本情報 =====
@@ -50,101 +55,6 @@ in
 
   # home-manager 自身を管理対象にする
   programs.home-manager.enable = true;
-
-  # ===== ユーザー専用パッケージ =====
-  # configuration.nix の environment.systemPackages から
-  # 「ユーザー個人で使うもの」をこちらに移していく
-  home.packages =
-    with pkgs;
-    [
-      # 個人用のツールはここへ(後で追加)
-      scowl
-      lua-language-server
-      stylua
-      nil
-      nixfmt-rfc-style
-      nh
-      nix-output-monitor
-      nodejs_22
-      pnpm
-      yarn
-      bun
-      python313
-      gcc
-      gnumake
-      go
-      rustc
-      cargo
-      rustfmt
-      clippy
-      luajit
-      terraform
-      terraform-ls
-      tflint
-      terraform-docs
-      typescript
-      typescript-language-server
-      astro-language-server
-      vscode-langservers-extracted
-      prettier
-      nodePackages.eslint
-      tailwindcss-language-server
-      emmet-language-server
-      biome
-      pyright
-      basedpyright
-      pyrefly
-      uv
-      python3Packages.pytest
-      ruff
-      bash-language-server
-      sqls
-      gh
-      git-remote-codecommit
-      ghq
-      lazygit
-      delta
-      jq
-      yq-go
-      awscli2Package
-      (azure-cli.withExtensions [ azure-cli.extensions.azure-devops ])
-      google-cloud-sdk
-      repomix
-      (textlint.withPackages [
-        textlint-rule-preset-ja-spacing
-        textlint-rule-preset-ja-technical-writing
-      ])
-    ]
-    ++ lib.optionals pkgs.stdenv.isLinux [
-      chromium
-      bubblewrap
-      xdg-dbus-proxy
-    ]
-    ++ lib.optionals isWSL [
-      wslu
-      xdg-utils
-    ]
-    ++ lib.optionals (pkgs.stdenv.isLinux && !isWSL) [
-      wl-clipboard
-      xclip
-      xsel
-    ]
-    ++ lib.optionals pkgs.stdenv.isDarwin [
-      # macOS 専用 (Step 4 で活用)
-    ];
-
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-    extraPackages = with pkgs; [
-      gcc
-      gnumake
-      nodejs
-      tree-sitter
-    ];
-  };
 
   home.file = {
     ".textlintrc.json".text = builtins.toJSON {
@@ -201,9 +111,7 @@ in
       gqg = "ghq get";
       gql = "ghq list";
       gqr = "ghq root";
-      dotfiles-check = "nix flake check --all-systems --no-build --show-trace ${homeDirectory}/dotfiles-nixos";
-      dotfiles-fmt = "nix fmt ${homeDirectory}/dotfiles-nixos";
-      expo-dev = "nix develop ${homeDirectory}/dotfiles-nixos#expo -c zsh";
+      expo-dev = "nix develop ${lib.escapeShellArg "${config.dotfiles.repository}#expo"} -c zsh";
       ".." = "cd ..";
       "..." = "cd ../..";
       hi = "echo 'Hello from home-manager!'"; # ← 追加
@@ -211,7 +119,7 @@ in
     // lib.optionalAttrs isWSL {
       open = "wslview";
       explorer = "explorer.exe";
-      nixos-switch = "sudo nh os switch ${homeDirectory}/dotfiles-nixos#nixos-wsl";
+      nixos-switch = "sudo nh os switch ${lib.escapeShellArg "${config.dotfiles.repository}#nixos-wsl"}";
     };
     initContent = ''
       # ここに自由に zsh 設定を書ける

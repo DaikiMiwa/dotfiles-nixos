@@ -1,18 +1,25 @@
 #!/bin/bash
 
-# 移動方向を引数で受け取る (left, right, up, down)
-DIRECTION=$1
+set -eu
+
+case "${1:-}" in
+  left|right|up|down) direction="$1" ;;
+  *) echo "Usage: $0 <left|right|up|down>" >&2; exit 2 ;;
+esac
 
 # 1. 移動前のウィンドウIDを記録
-PREV_WINDOW_ID=$(aerospace list-windows --focused --format %{window-id})
+prev_window_id=$(aerospace list-windows --focused --format '%{window-id}')
+if [ -z "$prev_window_id" ]; then
+  exec aerospace focus-monitor "$direction"
+fi
 
 # 2. 指定方向へのフォーカス移動を試みる
-aerospace focus $DIRECTION
+aerospace focus "$direction" || true
 
 # 3. 移動後のウィンドウIDを取得
-NEW_WINDOW_ID=$(aerospace list-windows --focused --format %{window-id})
+new_window_id=$(aerospace list-windows --focused --format '%{window-id}')
 
 # 4. IDが変わっていなければ（＝端にいて移動できなかった）、モニター移動を実行
-if [ "$PREV_WINDOW_ID" == "$NEW_WINDOW_ID" ]; then
-    aerospace focus-monitor $DIRECTION
+if [ "$prev_window_id" = "$new_window_id" ]; then
+  exec aerospace focus-monitor "$direction"
 fi

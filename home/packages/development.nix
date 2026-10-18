@@ -1,0 +1,43 @@
+{ pkgs, ... }:
+{
+  home.packages = with pkgs; [
+    lua-language-server
+    stylua
+    nil
+    nixfmt-rfc-style
+    nodejs_22
+    pnpm
+    yarn
+    bun
+    python313
+    gcc
+    gnumake
+    go
+    rustc
+    cargo
+    rustfmt
+    clippy
+    luajit
+    terraform
+    terraform-ls
+    tflint
+    terraform-docs
+    typescript
+    typescript-language-server
+    astro-language-server
+    vscode-langservers-extracted
+    prettier
+    nodePackages.eslint
+    tailwindcss-language-server
+    emmet-language-server
+    biome
+    pyright
+    basedpyright
+    pyrefly
+    uv
+    python3Packages.pytest
+    ruff
+    bash-language-server
+    sqls
+  ];
+}

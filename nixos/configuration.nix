@@ -113,24 +113,7 @@ in
     };
   };
 
-  systemd.user.services.docker-prune = {
-    description = "Prune Docker resources (Rootless)";
-    after = [ "docker.service" ];
-    requires = [ "docker.service" ];
-    environment.DOCKER_HOST = "unix://%t/docker.sock";
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${lib.getExe dockerPackage} system prune -f";
-    };
-  };
-
-  systemd.user.timers.docker-prune = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "weekly";
-      Persistent = true;
-    };
-  };
+  # Prune manually after inspecting containers; stopped containers can hold data.
 
   environment.systemPackages = with pkgs; [
     # 基本

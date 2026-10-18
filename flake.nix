@@ -38,6 +38,7 @@
       supportedSystems = [ linuxSystem ] ++ darwinSystems;
       unfreePackageNames = [
         "terraform"
+        "cursor-cli"
       ];
 
       nixpkgsConfig = {
@@ -51,7 +52,9 @@
           config = nixpkgsConfig;
         };
 
-      unstablePkgsFor =
+      # Intel macOS stays on the supported stable input; other hosts use unstable
+      # for selected CLI packages. Keep this policy explicit during input updates.
+      cliPkgsFor =
         system:
         import (if system == "x86_64-darwin" then nixpkgs else nixpkgs-unstable) {
           inherit system;
@@ -59,6 +62,28 @@
         };
 
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+
+      mkFormatter =
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        pkgs.writeShellApplication {
+          name = "dotfiles-format";
+          runtimeInputs = [
+            pkgs.nixfmt-rfc-style
+            pkgs.stylua
+            pkgs.findutils
+          ];
+          text = ''
+            if [ "$#" -gt 0 ]; then
+              nixfmt "$@"
+            else
+              find . -type f -name '*.nix' -not -path './.git/*' -print0 | xargs -0 -r nixfmt
+              stylua home/nvim home/wezterm tests
+            fi
+          '';
+        };
 
       mkDevShells =
         system:
@@ -272,7 +297,8 @@
         system:
         let
           pkgs = pkgsFor system;
-          awscli2Package = (unstablePkgsFor system).awscli2;
+          awscli2Package = (cliPkgsFor system).awscli2;
+          cursorCliPackage = (cliPkgsFor system).cursor-cli;
           herdrPackage = herdr.packages.${system}.default;
           homeDirectory = if pkgs.stdenv.isDarwin then "/Users/${username}" else "/home/${username}";
         in
@@ -286,6 +312,7 @@
               username
               homeDirectory
               awscli2Package
+              cursorCliPackage
               herdrPackage
               ;
             isWSL = false;
@@ -301,8 +328,58 @@
         in
         {
           home-activation = self.homeConfigurations.${homeConfigurationName system}.activationPackage;
-        }
-        // nixpkgs.lib.optionalAttrs (system == linuxSystem) {
+          cursor-cli = (cliPkgsFor system).cursor-cli;
+          dotfiles-helpers = pkgs.symlinkJoin {
+            name = "dotfiles-helpers";
+            paths =
+              builtins.filter (
+                p:
+                builtins.elem (nixpkgs.lib.getName p) [
+                  "dotfiles-check"
+                  "dotfiles-fmt"
+                ]
+              ) self.homeConfigurations.${homeConfigurationName system}.config.home.packages
+              ++ [ self.formatter.${system} ];
+          };
+          shell-scripts =
+            pkgs.runCommand "shell-script-check"
+              {
+                nativeBuildInputs = [ pkgs.shellcheck ];
+                src = self;
+              }
+              ''
+                cd "$src"
+                shellcheck home/aerospace/*.sh
+                touch "$out"
+              '';
+          format-lua =
+            pkgs.runCommand "stylua-check"
+              {
+                nativeBuildInputs = [ pkgs.stylua ];
+                src = self;
+              }
+              ''
+                cd "$src"
+                stylua --check home/nvim home/wezterm tests
+                touch "$out"
+              '';
+          neovim-config =
+            pkgs.runCommand "neovim-config-check"
+              {
+                nativeBuildInputs = [
+                  self.homeConfigurations.${homeConfigurationName system}.config.programs.neovim.finalPackage
+                ];
+                src = self;
+              }
+              ''
+                export XDG_CONFIG_HOME="$TMPDIR/config"
+                export XDG_DATA_HOME="$TMPDIR/data"
+                export XDG_STATE_HOME="$TMPDIR/state"
+                export XDG_CACHE_HOME="$TMPDIR/cache"
+                cd "$src"
+                nvim --headless -u NONE -i NONE -l tests/neovim.lua
+                touch "$out"
+              '';
           format-nix =
             pkgs.runCommand "nixfmt-check"
               {
@@ -316,13 +393,15 @@
                 nixfmt --check $(find . -name '*.nix' -type f | sort)
                 touch "$out"
               '';
+        }
+        // nixpkgs.lib.optionalAttrs (system == linuxSystem) {
           nixos-wsl = self.nixosConfigurations.nixos-wsl.config.system.build.toplevel;
         };
     in
     {
       devShells = forAllSystems mkDevShells;
 
-      formatter = forAllSystems (system: (pkgsFor system).nixfmt-rfc-style);
+      formatter = forAllSystems mkFormatter;
 
       checks = forAllSystems mkChecks;
 
@@ -357,7 +436,8 @@
               inherit username;
               homeDirectory = "/home/${username}";
               isWSL = true;
-              awscli2Package = (unstablePkgsFor linuxSystem).awscli2;
+              awscli2Package = (cliPkgsFor linuxSystem).awscli2;
+              cursorCliPackage = (cliPkgsFor linuxSystem).cursor-cli;
               herdrPackage = herdr.packages.${linuxSystem}.default;
             };
             home-manager.users.${username} = import ./home/home.nix;
