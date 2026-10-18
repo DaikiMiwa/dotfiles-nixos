@@ -20,7 +20,7 @@ README を確認。実装と検証の進捗は `todo.md`、日常の手順は `d
 
 - Nix / Lua 全体の整形とチェックを追加。Lua は2スペースに統一。
 - Linux / Apple Silicon / Intel Mac の CI を追加。action は commit に固定し、
-  Dependabot で更新通知する。
+  更新も通常の main 直接運用で検証する。自動 PR は作成しない。
 - 停止コンテナも削除する週次 Docker prune timer / service を削除。
 - `home.packages` を `home/packages/` の用途別 module に分割。
 - lazy.nvim・Treesitter/parser・LuaSnip/jsregexp を Nix 管理へ移行し、

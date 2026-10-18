@@ -41,6 +41,8 @@ commit 前に `git diff --check` と差分を確認し、意図したファイ�
 Nix input は必要なものを指定して `nix flake update nixpkgs home-manager` 等で更新し、
 検証する。全 input を更新したい場合だけ `nix flake update` を使う。
 設定変更と依存更新を別 commit にして切り戻せるようにする。
+CI action も commit SHA を固定し、更新時にリリース内容と3 platform の結果を確認する。
+個人リポジトリの方針に合わせ、自動更新 PR は作成しない。
 
 lazy.nvim、Treesitter と parser / queries、LuaSnip と jsregexp、Cursor CLI は Nix 管理。
 Neovim 内でこれらを更新・build しない。その他のプラグインは `:Lazy update` 後に
