@@ -1,48 +1,42 @@
-# Improvement TODO
+# レビューと運用改善（2026-10-11）
 
-このメモは、設定改善作業を中断後に再開するための TODO です。
+## 今回の確認・修正
 
-## 現在の注意点
+主要 Nix モジュール、Neovim のロード・formatter、tmux / 開発 helper と
+README を確認。実装と検証の進捗は `todo.md`、日常の手順は `docs/operations.md`。
 
-- 作業ツリーにはユーザー側の未コミット変更があります。戻さずに扱うこと。
-- 確認済みの現象:
-  - `nix flake check --all-systems --no-build --show-trace` は通過済み。
-  - `nvim --headless +'lua print("nvim config loaded")' +qa` は通過済み。
-  - `stylua --check home/nvim/lua home/nvim/after` は失敗済み。
-  - tmux の実環境差分は未 switch が原因。リポジトリ側の設定を基準に見る。
+- **高: Neovim のリンク先不整合** — 元の参照先 `~/.dotfiles` は現マシンに
+  存在しなかった。`dotfiles.repository` に配置先を一元化し、リンクと helper で共有。
+- **中: 保存時の意図しない文章修正** — textlint が祖先の `package.json` や
+  ホームの設定でも実行され、個人設定を強制していた。ホームと Git 境界で探索を
+  止め、明示したプロジェクト設定のディレクトリから実行するよう修正。
+- **中: 整形コマンドの呼び出し元依存** — `dotfiles-fmt` を runtime dependencies が
+  明示された `writeShellApplication` で提供し、配置先で Nix / Lua を整形。
+- **中: mutable installer** — Cursor の適用時 installer を削除し、Nix 管理へ移行。
+- **中: 検証と実態の説明不足** — macOS にも format check を追加し、
+  README に build / switch / rollback と rootless Docker の削除対象を記載。
 
-## 次に潰す順番
+## 追加依頼で対応した残課題
 
-1. Lua formatter を導入して check に入れる。
-   - 対象: `.stylua.toml`, `flake.nix`, `home/nvim/lua`, `home/nvim/after`
-   - 方針: 既存 Lua を `stylua` で整形し、`format-lua` check を追加する。
+- Nix / Lua 全体の整形とチェックを追加。Lua は2スペースに統一。
+- Linux / Apple Silicon / Intel Mac の CI を追加。action は commit に固定し、
+  Dependabot で更新通知する。
+- 停止コンテナも削除する週次 Docker prune timer / service を削除。
+- `home.packages` を `home/packages/` の用途別 module に分割。
+- lazy.nvim・Treesitter/parser・LuaSnip/jsregexp を Nix 管理へ移行し、
+  起動時 bootstrap、`:TSUpdate`、runtime の jsregexp build をなくした。
+- Blink は Lua matcher を使い、起動時の binary download をなくした。
+- AeroSpace helper の方向引数検証、quoting、window 不在時の処理を追加し ShellCheck 対象にした。
+- 更新・検証・適用・切り戻しの手順を `docs/operations.md` に集約。
 
-2. Neovim plugin 更新の再現性を改善する。
-   - 対象:
-     - `home/nvim/lua/config/lazy.lua`
-     - `home/nvim/lua/plugins/treesitter.lua`
-     - `home/nvim/lua/plugins/blink.lua`
-     - `home/nvim/lua/plugins/luasnip.lua`
-   - 問題: 自動 update、`:TSUpdate`、外部 binary download、runtime build が Nix 管理外の変化を作る。
-   - 方針: まずは自動更新を抑制し、更新手順を明示する。余裕があれば Nix 管理へ寄せる。
+## リポジトリ内では解消できない制約
 
-3. ドキュメントのコマンドを最新化する。
-   - 対象: `README.md`, `AGENTS.md`, `docs/react-native-expo-task-manager.md`
-   - 方針: `nixos-rebuild` だけでなく、`nixos-switch`, `nh`, `dotfiles-check`, `dotfiles-fmt`, `expo-dev` を基準にする。
-   - `docs/react-native-expo-task-manager.md` の `/home/daiki.miwa/...` は `~/dotfiles-nixos#expo` などに寄せる。
+- Intel Mac の上流サポート終了は設定修正では解消できない。対応 input を維持する
+  方針を明示し、Intel runner を加えて更新時の不具合を検出する。
+- Homebrew 管理の AI CLI は Nix rollback の対象外。既存の管理方針を尊重し、
+  更新を別操作にして確認する。
+- GUI・WSL の再起動と全ツールの実機操作は CI の保証範囲外。
 
-## 後で掃除する項目
-
-- `home/home.nix` の巨大な `home.packages` を用途別 module に分割する。
-- `home/nvim/lua/plugins/conform.lua` の markdown `textlint` 実行条件を project local config がある場合に絞る。
-- `home/nvim/lua/plugins/fzf.lua` の `<leader>gs` / `<leader>gc` 重複 mapping を整理する。
-- CI で `nix flake check` と Lua format check を回す。
-
-## 再開時の確認コマンド
-
-```sh
-git status --short
-nix flake check --all-systems --no-build --show-trace
-nvim --headless +'lua print("nvim config loaded")' +qa
-stylua --check home/nvim/lua home/nvim/after
-```
+元の改善メモにあった「未コミット変更あり」は今回開始時には該当しなかった。
+`checker.enabled = true` は更新通知であり自動更新ではない。
+`fzf.lua` の `<leader>gs` / `<leader>gc` の重複も確認できず、不要な変更は加えていない。

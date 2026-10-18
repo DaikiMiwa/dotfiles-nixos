@@ -13,14 +13,20 @@ NixOS-WSL と Home Manager で管理する個人用 dotfiles です。
 - `home/nvim/`: Neovim の Lua 設定
 - `home/tmux.nix`: tmux とセッション管理コマンド
 - `home/opencode.nix`: opencode CLI
+- `home/dotfiles.nix`: 配置先と検証・整形コマンド
+- `home/packages/`: 用途別の CLI / 開発 / cloud / desktop / writing パッケージ
+- `tests/neovim.lua`: Neovim の依存・parser・formatter の境界条件チェック
 
 ## 前提
 
-- NixOS-WSL
+- NixOS-WSL、または macOS + Home Manager
 - flakes が有効な Nix
 - `sudo` を使えるユーザー
 
 `flake.nix` の `username` は自分の Linux ユーザー名に合わせます。
+標準の配置先は `~/dotfiles-nixos` です。別の場所に置く場合は
+`home/home.nix` に `dotfiles.repository = "/absolute/path/to/checkout";` を指定します。
+Neovim の編集可能なリンクと `dotfiles-*` / `expo-dev` はこの設定を共有します。
 
 ```nix
 username = "daiki.miwa";
@@ -37,7 +43,13 @@ brew bundle --file=./Brewfile
 brew upgrade --cask codex claude-code
 ```
 
-Homebrew が管理する `~/.codex` と `~/.claude` の設定は、このリポジトリからは変更しません。
+`~/.codex` と `~/.claude` の設定・認証情報は、このリポジトリからは変更しません。
+
+Cursor CLI は Nix が固定バージョンを管理します。`cursor-agent update` や外部
+installer では更新せず、Nix input を更新して適用します。
+以前の `~/.local/bin/cursor-agent` が PATH 上で優先される場合は、
+`command -v cursor-agent` を確認してそのリンクを退避し、新しいシェルを開きます。
+認証情報は引き続きホームディレクトリに置きます。
 
 ### NixOS-WSL
 
@@ -121,12 +133,42 @@ home-manager switch --flake .#daiki.miwa-x86_64-darwin
 
 ## 更新
 
-flake input を更新する場合は次を実行します。
+更新は `flake.lock` の変更、検証、ビルド、適用の順で行います。
+以下はリポジトリのルートで実行します。
 
 ```bash
 nix flake update
-sudo nixos-rebuild switch --flake .#nixos-wsl
+dotfiles-fmt
+dotfiles-check
+home-manager build --flake .#daiki.miwa-aarch64-darwin
+home-manager switch --flake .#daiki.miwa-aarch64-darwin
 ```
+
+`dotfiles-check` は全 system を評価した後、現在の platform の Nix / Lua 整形、
+shell script、Neovim 依存・parser・textlint 境界条件のチェックを実行します。
+適用前で helper がない場合は [運用手順](docs/operations.md) の直接コマンドを使います。
+GitHub Actions でも Linux・Apple Silicon・Intel Mac の3環境で同じ検証を行います。
+依存更新・設定変更・プラグイン更新はそれぞれ独立した commit にします。
+
+WSL では
+`sudo nixos-rebuild build --flake .#nixos-wsl` が成功してから
+`sudo nixos-rebuild switch --flake .#nixos-wsl` を実行します。
+Intel Mac は `x86_64-darwin` を使います。評価成功だけではビルドや実機動作は保証されません。
+
+適用後は新しいシェルで PATH、Neovim、tmux、開発用コマンドを確認します。
+問題があれば WSL は `sudo nixos-rebuild switch --rollback`、Home Manager は
+`home-manager generations` で直前の世代を確認し、そのパスの `activate` を実行します。
+原因となった commit は `git revert <commit>` で戻して再検証します。
+Neovim は作業ツリーへのリンクなので、Home Manager の世代を戻すだけでは Lua 設定は戻りません。
+WSL は 14 日より古い世代を GC 対象にしているため、切り戻し確認は更新直後に行います。
+
+Neovim のプラグイン更新は `:Lazy update` 後に動作確認し、
+`home/nvim/lazy-lock.json` の差分を設定と一緒に commit します。
+ロック済みの版へ戻すときは `:Lazy restore` を使います。
+lazy.nvim・Treesitter 本体と parser・LuaSnip は Nix input で更新します。
+`:TSUpdate` や LuaSnip の手動 build は不要です。Blink は Lua 実装を使うため
+起動時の外部 binary download は発生しません。Rust 実装とはマッチング性能が異なります。
+プラグインの更新通知も明示的な操作時に確認します。
 
 ## 主な設定
 
@@ -148,7 +190,11 @@ tmux では、`prefix + m` で fzf ベースのセッション管理ポップア
 
 WSL の tmux では、`prefix + I` で Windows クリップボード内の画像を PNG に保存し、その WSL パスを現在のペインへ貼り付けます。Codex CLI の画像貼り付けが Windows クリップボードを直接読めない場合は、このキーで画像パスを入力欄へ貼り付けて添付します。コマンド単体では `codex-wsl-clipboard-image` が保存後の WSL パスを出力し、`codex-wsl-paste-image` が tmux ペインへ貼り付けます。
 
-Docker は NixOS の `virtualisation.docker` で有効化し、ユーザーを `docker` グループに追加します。初回適用後は、グループ反映のために WSL セッションへ入り直します。
+Docker は rootless モードで、ユーザーの systemd サービスとして動きます。
+適用後は新しいシェルで `systemctl --user status docker` と `docker info` を確認します。
+自動 prune は行いません。`docker system df` と `docker ps -a` で利用状況を確認し、
+不要なものだけ手動で削除します。必要なデータは volume や bind mount に置いてバックアップします。
+以前の設定から更新する場合の timer 停止手順は [運用手順](docs/operations.md) を参照してください。
 
 ## LaTeX / 論文執筆
 

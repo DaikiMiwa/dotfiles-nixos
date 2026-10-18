@@ -9,13 +9,16 @@ This repository contains personal NixOS-WSL and Home Manager dotfiles.
 - `home/home.nix` is the main Home Manager module and imports feature modules.
 - `home/opencode.nix`, `home/tmux.nix`, and `home/nvim.nix` manage opencode, tmux, and Neovim.
 - `home/nvim/` contains Lua-based Neovim configuration and plugin specs.
+- `home/packages/` separates packages by purpose; `home/dotfiles.nix` owns the checkout path and helper commands.
 - `docs/` contains workflow notes, currently React Native / Expo guidance.
 
-There is no application source tree or test suite; validation is primarily Nix evaluation.
+Validation combines Nix evaluation with formatting, shell checks, and `tests/neovim.lua`.
 
 ## Build, Test, and Development Commands
 
 - `nix flake check --all-systems --no-build --show-trace`: evaluate all supported outputs without building everything.
+- `nix build --no-link .#checks.aarch64-darwin.format-nix`: execute the format check (use `x86_64-linux` on WSL or `x86_64-darwin` on Intel Mac). `--no-build` only evaluates checks.
+- `dotfiles-fmt` and `dotfiles-check`: format Nix/Lua and evaluate all outputs plus execute native checks from any directory. Before applying helpers, follow `docs/operations.md`.
 - `nix eval --show-trace '.#homeConfigurations."daiki.miwa".activationPackage.drvPath'`: verify the Linux Home Manager activation package.
 - `nix eval --show-trace '.#nixosConfigurations.nixos-wsl.config.system.build.toplevel.drvPath'`: verify the WSL NixOS system derivation.
 - `sudo nixos-rebuild switch --flake .#nixos-wsl`: apply the WSL system configuration.
@@ -28,7 +31,7 @@ Format Nix files with `nixfmt-rfc-style` before committing. Keep modules small a
 
 ## Testing Guidelines
 
-Run the evaluation commands above after changing `flake.nix`, `home/*.nix`, or `nixos/*.nix`. For Neovim changes, ensure `home/nvim/lazy-lock.json` is updated when plugin versions change. If adding shell helpers, prefer `pkgs.writeShellApplication` so runtime dependencies are explicit.
+Run the evaluation commands above after changing any Nix module and run native checks. For Neovim changes, run `neovim-config` and `format-lua`. lazy.nvim, Treesitter/parsers and LuaSnip are Nix-managed; other plugin revisions live in `home/nvim/lazy-lock.json`. If adding shell helpers, prefer `pkgs.writeShellApplication` so runtime dependencies are explicit.
 
 ## Commit & Push Guidelines
 
@@ -40,7 +43,7 @@ Before pushing, include a short summary of the change and the validation command
 
 ## Security & Configuration Tips
 
-Do not commit secrets, tokens, local Codex state, or machine-specific credentials. Keep `~/.ssh/config.local` outside the repository. `.codex` is ignored intentionally; Codex configuration is generated through Home Manager without storing credentials.
+Do not commit secrets, tokens, local Codex state, or machine-specific credentials. Keep `~/.ssh/config.local` outside the repository. `.codex` is ignored intentionally; local AI CLI configuration and credentials are not managed by this repository.
 
 ## Interaction & Communication Guidelines
 
