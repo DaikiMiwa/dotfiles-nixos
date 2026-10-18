@@ -4,7 +4,7 @@
 - [x] Neovim の配置、保存時 formatter、シェル補助コマンドの不具合を修正。
 - [x] 更新・検証・切り戻し手順と残課題を文書化。
 - [x] Nix 評価と変更箇所の検証を実行。
-- [ ] 差分を確認し、main に commit / push。
+- [x] 差分を確認し、main に commit / push。
 
 ## 追加依頼: 残課題も実装する
 
@@ -14,7 +14,7 @@
 - [x] Neovim bootstrap / 外部 installer の再現性を改善。
 - [x] 更新経路・Intel Mac の方針を運用手順に反映。
 - [x] 追加変更を検証。
-- [ ] commit / push 後の Linux / Apple Silicon / Intel CI を確認。
+- [x] commit / push 後の Linux / Apple Silicon / Intel CI を確認。
 
 以前の dependency failure 調査メモは原因・実行結果が残っていなかったため、
 今回の全出力評価で再確認する。
@@ -32,3 +32,10 @@ OS / Home Manager の switch と全パッケージの build は実行してい�
 - 一時環境に全設定と plugin を複製し、lock 復元・Neovim 起動・Nix parser 読み込みが成功。
 - lazy の runtime path リセットと read-only plugin への helptags 書き込みを修正して検証。
 - 既存 Copilot cache にある手編集は保全し、検証用コピーのみ clean にして確認。
+
+GitHub Actions は3環境とも成功:
+https://github.com/DaikiMiwa/dotfiles-nixos/actions/runs/39130898829
+
+自動更新 PR の設定は main 直接運用と合わないため除去し、今回自動生成された
+PR #19 を閉じてその branch も削除した。既存のユーザー作業には変更を加えていない。
+変更の適用と手動の動作確認は `docs/operations.md` に記載。
