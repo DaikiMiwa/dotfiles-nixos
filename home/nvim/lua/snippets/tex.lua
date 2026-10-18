@@ -5,10 +5,10 @@ local s = ls.snippet
 local t = ls.text_node
 
 return {
-	s(
-		"doc",
-		fmt(
-			[[
+  s(
+    "doc",
+    fmt(
+      [[
 \documentclass[{}]{{{}}}
 \usepackage{{amsmath,amssymb}}
 \usepackage{{graphicx}}
@@ -25,60 +25,60 @@ return {
 
 \end{{document}}
 ]],
-			{
-				i(1, "a4paper,11pt"),
-				i(2, "ltjsarticle"),
-				i(3, "Title"),
-				i(4, "Author"),
-				i(0),
-			}
-		)
-	),
+      {
+        i(1, "a4paper,11pt"),
+        i(2, "ltjsarticle"),
+        i(3, "Title"),
+        i(4, "Author"),
+        i(0),
+      }
+    )
+  ),
 
-	s(
-		"platexrc",
-		fmt(
-			[[
+  s(
+    "platexrc",
+    fmt(
+      [[
 $latex = '{} -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
 $bibtex = '{} %O %B';
 $dvipdf = 'dvipdfmx %O -o %D %S';
 $pdf_mode = 3;
 ]],
-			{
-				i(1, "platex"),
-				i(2, "pbibtex"),
-			}
-		)
-	),
-	s("lualatex", t("% !TEX program = lualatex")),
-	s("pdflatex", t("% !TEX program = pdflatex")),
-	s("platex", t("% !TEX program = platex")),
-	s("uplatex", t("% !TEX program = uplatex")),
-	s(
-		"biblatex",
-		fmt(
-			[[
+      {
+        i(1, "platex"),
+        i(2, "pbibtex"),
+      }
+    )
+  ),
+  s("lualatex", t("% !TEX program = lualatex")),
+  s("pdflatex", t("% !TEX program = pdflatex")),
+  s("platex", t("% !TEX program = platex")),
+  s("uplatex", t("% !TEX program = uplatex")),
+  s(
+    "biblatex",
+    fmt(
+      [[
 \usepackage[backend={},style={},sorting={}]{{biblatex}}
 \addbibresource{{{}}}
 ]],
-			{
-				i(1, "biber"),
-				i(2, "numeric"),
-				i(3, "none"),
-				i(4, "references.bib"),
-			}
-		)
-	),
-	s("printbib", t("\\printbibliography")),
-	s("cleveref", t("\\usepackage[nameinlink,noabbrev]{cleveref}")),
-	s("booktabs", t("\\usepackage{booktabs}")),
-	s("siunitx", t("\\usepackage{siunitx}")),
-	s("tikzpkg", t("\\usepackage{tikz}")),
+      {
+        i(1, "biber"),
+        i(2, "numeric"),
+        i(3, "none"),
+        i(4, "references.bib"),
+      }
+    )
+  ),
+  s("printbib", t("\\printbibliography")),
+  s("cleveref", t("\\usepackage[nameinlink,noabbrev]{cleveref}")),
+  s("booktabs", t("\\usepackage{booktabs}")),
+  s("siunitx", t("\\usepackage{siunitx}")),
+  s("tikzpkg", t("\\usepackage{tikz}")),
 
-	s(
-		"fig",
-		fmt(
-			[[
+  s(
+    "fig",
+    fmt(
+      [[
 \begin{{figure}}[{}]
   \centering
   \includegraphics[width={}\linewidth]{{{}}}
@@ -86,20 +86,20 @@ $pdf_mode = 3;
   \label{{fig:{}}}
 \end{{figure}}
 ]],
-			{
-				i(1, "tbp"),
-				i(2, "0.8"),
-				i(3, "path/to/image"),
-				i(4, "Caption"),
-				i(5, "label"),
-			}
-		)
-	),
+      {
+        i(1, "tbp"),
+        i(2, "0.8"),
+        i(3, "path/to/image"),
+        i(4, "Caption"),
+        i(5, "label"),
+      }
+    )
+  ),
 
-	s(
-		"subfig",
-		fmt(
-			[[
+  s(
+    "subfig",
+    fmt(
+      [[
 \begin{{figure}}[{}]
   \centering
   \begin{{minipage}}{{{}\\linewidth}}
@@ -116,26 +116,26 @@ $pdf_mode = 3;
   \label{{fig:{}}}
 \end{{figure}}
 ]],
-			{
-				i(1, "tbp"),
-				i(2, "0.48"),
-				i(3, "figures/a.pdf"),
-				i(4, "a"),
-				i(5, "Caption A"),
-				i(6, "0.48"),
-				i(7, "figures/b.pdf"),
-				i(8, "b"),
-				i(9, "Caption B"),
-				i(10, "Caption"),
-				i(11, "label"),
-			}
-		)
-	),
+      {
+        i(1, "tbp"),
+        i(2, "0.48"),
+        i(3, "figures/a.pdf"),
+        i(4, "a"),
+        i(5, "Caption A"),
+        i(6, "0.48"),
+        i(7, "figures/b.pdf"),
+        i(8, "b"),
+        i(9, "Caption B"),
+        i(10, "Caption"),
+        i(11, "label"),
+      }
+    )
+  ),
 
-	s(
-		"tbl",
-		fmt(
-			[[
+  s(
+    "tbl",
+    fmt(
+      [[
 \begin{{table}}[{}]
   \centering
   \caption{{{}}}
@@ -149,55 +149,55 @@ $pdf_mode = 3;
   \end{{tabular}}
 \end{{table}}
 ]],
-			{
-				i(1, "tbp"),
-				i(2, "Caption"),
-				i(3, "label"),
-				i(4, "ll"),
-				i(5, "Header 1 & Header 2"),
-				i(0, "Value 1 & Value 2"),
-			}
-		)
-	),
+      {
+        i(1, "tbp"),
+        i(2, "Caption"),
+        i(3, "label"),
+        i(4, "ll"),
+        i(5, "Header 1 & Header 2"),
+        i(0, "Value 1 & Value 2"),
+      }
+    )
+  ),
 
-	s("eq", fmt("\\begin{{equation}}\n  {}\n\\end{{equation}}", { i(0) })),
-	s("al", fmt("\\begin{{align}}\n  {}\n\\end{{align}}", { i(0) })),
-	s("ca", fmt("\\begin{{cases}}\n  {}\n\\end{{cases}}", { i(0) })),
-	s("pmat", fmt("\\begin{{pmatrix}}\n  {}\n\\end{{pmatrix}}", { i(0) })),
-	s("bmat", fmt("\\begin{{bmatrix}}\n  {}\n\\end{{bmatrix}}", { i(0) })),
-	s("fr", fmt("\\frac{{{}}}{{{}}}", { i(1), i(2) })),
-	s("sum", fmt("\\sum_{{{}={}}}^{{{}}} {}", { i(1, "i"), i(2, "1"), i(3, "n"), i(0) })),
-	s("lim", fmt("\\lim_{{{} \\to {}}} {}", { i(1, "n"), i(2, "\\infty"), i(0) })),
-	s("argmax", fmt("\\operatorname*{{arg\\,max}}_{{{}}} {}", { i(1, "x"), i(0) })),
-	s("argmin", fmt("\\operatorname*{{arg\\,min}}_{{{}}} {}", { i(1, "x"), i(0) })),
-	s("it", fmt("\\begin{{itemize}}\n  \\item {}\n\\end{{itemize}}", { i(0) })),
-	s("en", fmt("\\begin{{enumerate}}\n  \\item {}\n\\end{{enumerate}}", { i(0) })),
-	s("abs", fmt("\\begin{{abstract}}\n  {}\n\\end{{abstract}}", { i(0) })),
-	s("thm", fmt("\\begin{{theorem}}[{}]\n  {}\n\\end{{theorem}}", { i(1, "Title"), i(0) })),
-	s("lem", fmt("\\begin{{lemma}}[{}]\n  {}\n\\end{{lemma}}", { i(1, "Title"), i(0) })),
-	s("defn", fmt("\\begin{{definition}}[{}]\n  {}\n\\end{{definition}}", { i(1, "Title"), i(0) })),
-	s("prf", fmt("\\begin{{proof}}\n  {}\n\\end{{proof}}", { i(0) })),
-	s("app", fmt("\\appendix\n\\section{{{}}}\n{}", { i(1, "Appendix"), i(0) })),
-	s(
-		"alg",
-		fmt("\\begin{{algorithm}}\n  \\caption{{{}}}\n  \\label{{alg:{}}}\n  {}\n\\end{{algorithm}}", {
-			i(1, "Caption"),
-			i(2, "label"),
-			i(0),
-		})
-	),
-	s("tikz", fmt("\\begin{{tikzpicture}}\n  {}\n\\end{{tikzpicture}}", { i(0) })),
-	s("sec", fmt("\\section{{{}}}", { i(0, "Section") })),
-	s("ssec", fmt("\\subsection{{{}}}", { i(0, "Subsection") })),
-	s("sssec", fmt("\\subsubsection{{{}}}", { i(0, "Subsubsection") })),
-	s("pkg", fmt("\\usepackage{{{}}}", { i(0, "package") })),
-	s("ref", fmt("\\ref{{{}:{}}}", { i(1, "fig"), i(0, "label") })),
-	s("cref", fmt("\\cref{{{}:{}}}", { i(1, "fig"), i(0, "label") })),
-	s("cite", fmt("\\cite{{{}}}", { i(0, "key") })),
-	s("parencite", fmt("\\parencite{{{}}}", { i(0, "key") })),
-	s("textcite", fmt("\\textcite{{{}}}", { i(0, "key") })),
-	s("lbl", fmt("\\label{{{}:{}}}", { i(1, "sec"), i(0, "label") })),
-	s("todo", fmt("% TODO: {}", { i(0) })),
-	s("fixme", fmt("% FIXME: {}", { i(0) })),
-	s("review", fmt("% REVIEW: {}", { i(0) })),
+  s("eq", fmt("\\begin{{equation}}\n  {}\n\\end{{equation}}", { i(0) })),
+  s("al", fmt("\\begin{{align}}\n  {}\n\\end{{align}}", { i(0) })),
+  s("ca", fmt("\\begin{{cases}}\n  {}\n\\end{{cases}}", { i(0) })),
+  s("pmat", fmt("\\begin{{pmatrix}}\n  {}\n\\end{{pmatrix}}", { i(0) })),
+  s("bmat", fmt("\\begin{{bmatrix}}\n  {}\n\\end{{bmatrix}}", { i(0) })),
+  s("fr", fmt("\\frac{{{}}}{{{}}}", { i(1), i(2) })),
+  s("sum", fmt("\\sum_{{{}={}}}^{{{}}} {}", { i(1, "i"), i(2, "1"), i(3, "n"), i(0) })),
+  s("lim", fmt("\\lim_{{{} \\to {}}} {}", { i(1, "n"), i(2, "\\infty"), i(0) })),
+  s("argmax", fmt("\\operatorname*{{arg\\,max}}_{{{}}} {}", { i(1, "x"), i(0) })),
+  s("argmin", fmt("\\operatorname*{{arg\\,min}}_{{{}}} {}", { i(1, "x"), i(0) })),
+  s("it", fmt("\\begin{{itemize}}\n  \\item {}\n\\end{{itemize}}", { i(0) })),
+  s("en", fmt("\\begin{{enumerate}}\n  \\item {}\n\\end{{enumerate}}", { i(0) })),
+  s("abs", fmt("\\begin{{abstract}}\n  {}\n\\end{{abstract}}", { i(0) })),
+  s("thm", fmt("\\begin{{theorem}}[{}]\n  {}\n\\end{{theorem}}", { i(1, "Title"), i(0) })),
+  s("lem", fmt("\\begin{{lemma}}[{}]\n  {}\n\\end{{lemma}}", { i(1, "Title"), i(0) })),
+  s("defn", fmt("\\begin{{definition}}[{}]\n  {}\n\\end{{definition}}", { i(1, "Title"), i(0) })),
+  s("prf", fmt("\\begin{{proof}}\n  {}\n\\end{{proof}}", { i(0) })),
+  s("app", fmt("\\appendix\n\\section{{{}}}\n{}", { i(1, "Appendix"), i(0) })),
+  s(
+    "alg",
+    fmt("\\begin{{algorithm}}\n  \\caption{{{}}}\n  \\label{{alg:{}}}\n  {}\n\\end{{algorithm}}", {
+      i(1, "Caption"),
+      i(2, "label"),
+      i(0),
+    })
+  ),
+  s("tikz", fmt("\\begin{{tikzpicture}}\n  {}\n\\end{{tikzpicture}}", { i(0) })),
+  s("sec", fmt("\\section{{{}}}", { i(0, "Section") })),
+  s("ssec", fmt("\\subsection{{{}}}", { i(0, "Subsection") })),
+  s("sssec", fmt("\\subsubsection{{{}}}", { i(0, "Subsubsection") })),
+  s("pkg", fmt("\\usepackage{{{}}}", { i(0, "package") })),
+  s("ref", fmt("\\ref{{{}:{}}}", { i(1, "fig"), i(0, "label") })),
+  s("cref", fmt("\\cref{{{}:{}}}", { i(1, "fig"), i(0, "label") })),
+  s("cite", fmt("\\cite{{{}}}", { i(0, "key") })),
+  s("parencite", fmt("\\parencite{{{}}}", { i(0, "key") })),
+  s("textcite", fmt("\\textcite{{{}}}", { i(0, "key") })),
+  s("lbl", fmt("\\label{{{}:{}}}", { i(1, "sec"), i(0, "label") })),
+  s("todo", fmt("% TODO: {}", { i(0) })),
+  s("fixme", fmt("% FIXME: {}", { i(0) })),
+  s("review", fmt("% REVIEW: {}", { i(0) })),
 }
