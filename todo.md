@@ -39,3 +39,6 @@ https://github.com/DaikiMiwa/dotfiles-nixos/actions/runs/39130898829
 自動更新 PR の設定は main 直接運用と合わないため除去し、今回自動生成された
 PR #19 を閉じてその branch も削除した。既存のユーザー作業には変更を加えていない。
 変更の適用と手動の動作確認は `docs/operations.md` に記載。
+
+CI 実行時の Node.js 20 非推奨警告に対応し、checkout action を公式 v7.0.1 の
+commit SHA に更新。main の最終 CI 結果は GitHub Actions で確認する。
