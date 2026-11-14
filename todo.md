@@ -1,5 +1,14 @@
 # Repository review
 
+## AI エージェント状態モニターの調査
+
+- [x] 現在の tmux / Herdr 設定を確認。
+- [x] tmux 拡張・tmux ベースの管理 UI・Herdr の一次資料を比較。
+- [x] 実行中 / 入力待ち / 承認待ちの検知方式と導入負荷を確認。
+- [x] 一覧の表示・非表示を含めた推奨を `docs/agent-monitoring.md` に文書化。
+
+今回は調査のみ。ツールのインストールやエージェント設定の変更は行わない。
+
 ## Ctrl-H と Python LSP の残課題を修正する
 
 - [x] スニペット外の Ctrl-H を標準 Backspace に渡す。
