@@ -1,5 +1,23 @@
 # Neovim・tmux・WezTerm 追加レビュー
 
+## 再確認で見つかった残課題（2026-11-14、cfc607e）
+
+1. **中: スニペット外の Ctrl-H が Backspace として動かない。**
+   `plugins/luasnip.lua` の Insert-mode mapping は、前のフィールドへ移動できない場合に
+   何もせず終了する。スニペットを使わない一時バッファの `ab` に Ctrl-H を送ると、
+   標準では `a` になるが、設定済み callback では `ab` のままだった。
+   スニペット内では前のフィールドへ移動し、それ以外では標準 Backspace へ渡す必要がある。
+
+2. **中: Python の型検査 LSP が同時起動する。**
+   `pyrefly.toml` がなく、最小の `pyproject.toml` だけがある一時プロジェクトでも
+   `basedpyright,pyrefly,ruff` の3クライアントが起動した。
+   navic からも Basedpyright 接続済みのバッファへ Pyrefly を接続しようとする警告が出た。
+   Ruff は lint 用として残し、型検査は既定の Basedpyright と明示設定時の Pyrefly を
+   排他的に選ぶ構成にするのがよい。root_markers の指定だけでは opt-in になっていない。
+
+今回は上記を再現確認して記録した。設定の変更・適用は行っていない。
+`cfc607e` の [GitHub Actions](https://github.com/DaikiMiwa/dotfiles-nixos/actions/runs/43578240392) は成功している。
+
 ## 対応内容
 
 以下のレビュー項目を修正した。

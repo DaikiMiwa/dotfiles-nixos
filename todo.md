@@ -1,5 +1,11 @@
 # Repository review
 
+## cfc607e 適用後の再確認
+
+- [x] 設定と GitHub Actions の成功を確認。
+- [x] スニペット外 Ctrl-H の Backspace 無効化と、Python LSP の同時起動を再現。
+- [x] `docs/editor-review.md` に残課題を記録（設定変更なし）。
+
 ## レビュー項目をすべて修正・適用する
 
 - [x] Neovim の起動経路とエディタ指定を Nix wrapper に統一。
