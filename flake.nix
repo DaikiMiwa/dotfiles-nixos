@@ -329,6 +329,9 @@
           sessionManager = builtins.head (
             builtins.filter (p: nixpkgs.lib.getName p == "tmux-session-manager") homeConfig.home.packages
           );
+          agentSidebar = builtins.head (
+            builtins.filter (p: nixpkgs.lib.getName p == "tmux-agent-sidebar") homeConfig.home.packages
+          );
         in
         {
           home-activation = self.homeConfigurations.${homeConfigurationName system}.activationPackage;
@@ -356,6 +359,7 @@
                 ];
                 TMUX_CONFIG = homeConfig.xdg.configFile."tmux/tmux.conf".source;
                 TMUX_SESSION_MANAGER = "${sessionManager}/bin/tmux-session-manager";
+                TMUX_AGENT_SIDEBAR = "${agentSidebar}/bin/tmux-agent-sidebar";
                 TEST_SHELL = "${pkgs.bash}/bin/bash";
                 src = self;
               }
@@ -364,6 +368,7 @@
                 shellcheck home/aerospace/*.sh home/tmux/*.sh
                 lua tests/wezterm.lua
                 python3 tests/tmux.py
+                python3 tests/agent-sidebar.py
                 python3 tests/shell-advisor.py
                 touch "$out"
               '';

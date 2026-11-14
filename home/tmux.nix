@@ -169,6 +169,16 @@ let
     text = builtins.readFile ./tmux/wezterm-mode.sh;
   };
 
+  tmux-agent-sidebar = pkgs.writeShellApplication {
+    name = "tmux-agent-sidebar";
+    runtimeInputs = [
+      pkgs.tmux
+      pkgs.gawk
+      pkgs.gnugrep
+    ];
+    text = builtins.readFile ./tmux/agent-sidebar.sh;
+  };
+
   tmux-wsl-copy = pkgs.writeShellApplication {
     name = "tmux-wsl-copy";
     runtimeInputs = [
@@ -280,6 +290,7 @@ in
   home.packages = [
     tmux-session-manager
     tmux-wezterm-mode
+    tmux-agent-sidebar
   ]
   ++ lib.optionals isWSL [
     codex-wsl-clipboard-image
@@ -403,7 +414,10 @@ in
       # ccmux is installed through Brewfile on macOS. Pass the opening client
       # explicitly so another terminal attached to this session stays put.
       bind-key a run-shell -C 'display-popup -E -w 80% -h 75% "ccmux --preview --client-tty #{client_tty}"'
-      bind-key S run-shell -b 'ccmux sidebar --toggle'
+      bind-key S run-shell -b '${tmux-agent-sidebar}/bin/tmux-agent-sidebar --toggle'
+      set-hook -g client-attached[91] 'run-shell -b ${tmux-agent-sidebar}/bin/tmux-agent-sidebar'
+      set-hook -g after-new-session[91] 'run-shell -b ${tmux-agent-sidebar}/bin/tmux-agent-sidebar'
+      run-shell -b '${tmux-agent-sidebar}/bin/tmux-agent-sidebar'
 
       # Load after status-right so its background save hook is not overwritten.
       set -g @continuum-save-interval 15

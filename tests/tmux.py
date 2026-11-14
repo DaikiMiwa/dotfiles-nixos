@@ -85,7 +85,7 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
         agent_list = tmux("list-keys", "-T", "prefix", "a").stdout
         assert "ccmux --preview --client-tty #{client_tty}" in agent_list
         assert "run-shell -C" in agent_list
-        assert "ccmux sidebar --toggle" in tmux("list-keys", "-T", "prefix", "S").stdout
+        assert "tmux-agent-sidebar --toggle" in tmux("list-keys", "-T", "prefix", "S").stdout
         right = tmux("show-option", "-gv", "status-right").stdout
         assert "#{@ccmux_status}" in right and "continuum_save.sh" in right
         for option in ("window-status-format", "window-status-current-format"):
