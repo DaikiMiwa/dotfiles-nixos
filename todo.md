@@ -1,5 +1,20 @@
 # Repository review
 
+## ccmux を追加する
+
+- [x] 配布方法と hook の更新範囲を確認し、既存設定を保持して導入。
+- [x] tmux の一覧ポップアップ・サイドバー切り替え・状態表示を追加。
+- [x] native checks・全環境評価・実環境への適用と動作確認。
+- [x] 操作手順と検証結果を記録。
+
+macOS に Homebrew の ccmux 1.4.6 と3エージェントの連携を導入し、監視 daemon を起動。
+元の設定は `~/.local/state/dotfiles/ccmux/20261114-203147/` に退避し、設定保持を検証。
+全 system の flake check（no-build）、Apple Silicon の6 checks、Home Manager build / switch が成功。
+独立した tmux でプレビュー付き一覧の表示・終了とサイドバーの開閉・元ペインの保持を確認。
+Codex の PermissionRequest hook が承認を送らず待機状態を記録することを隔離環境で確認。
+実際の承認画面への入力と macOS IME の GUI 確認は未実施。
+起動済みのエージェント CLI は再起動・resume して hook を読み込ませる。
+
 ## AI エージェント状態モニターの調査
 
 - [x] 現在の tmux / Herdr 設定を確認。

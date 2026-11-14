@@ -80,6 +80,16 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
         assert tmux("show-option", "-gv", "history-limit").stdout.strip() == "50000"
         assert tmux("show-option", "-gv", "@continuum-save-interval").stdout.strip() == "15"
         assert tmux("show-option", "-gv", "@continuum-restore").stdout.strip() == "off"
+        # The agent list targets the opening terminal, and monitoring must not
+        # overwrite continuum's save hook or the existing window formats.
+        agent_list = tmux("list-keys", "-T", "prefix", "a").stdout
+        assert "ccmux --preview --client-tty #{client_tty}" in agent_list
+        assert "run-shell -C" in agent_list
+        assert "ccmux sidebar --toggle" in tmux("list-keys", "-T", "prefix", "S").stdout
+        right = tmux("show-option", "-gv", "status-right").stdout
+        assert "#{@ccmux_status}" in right and "continuum_save.sh" in right
+        for option in ("window-status-format", "window-status-current-format"):
+            assert "#{@ccmux_mark}" in tmux("show-window-option", "-gv", option).stdout
         pane = tmux("display-message", "-p", "-t", "work", "#{pane_id}").stdout.strip()
         master, slave = pty.openpty()
 

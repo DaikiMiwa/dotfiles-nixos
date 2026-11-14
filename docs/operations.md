@@ -61,6 +61,48 @@ Codex / Claude Code は既存方針どおり Homebrew で管理する。これ�
 `brew upgrade --cask codex claude-code` で明示的に行い、Nix の更新と別に確認する。
 Homebrew の cask は `flake.lock` に固定されない。Nix の rollback では戻らない。
 
+### ccmux（macOS）
+
+ccmux は `Brewfile` の formula として管理する。新しい Mac ではリポジトリのルートで
+`brew bundle --file=Brewfile` を実行し、Home Manager を適用する。
+Linux / WSL ではこの Brewfile による導入は行わず、使う場合は別途 ccmux の導入が必要。
+Home Manager の switch だけでは ccmux 本体や各 CLI の hook は導入されない。
+
+```sh
+ccmux setup --agent codex --agent claude --agent opencode
+ccmux setup --agent codex --agent claude --agent opencode --status
+```
+
+setup は既存設定に hook を追加する。実行前に `~/.codex/config.toml`、
+`~/.codex/hooks.json`、`~/.claude/settings.json` の存在するものをローカルに退避する。
+認証情報を含み得るため、退避ファイルもリポジトリには置かない。
+hook / plugin を読み込ませるため、起動済みの CLI は会話を保持して再起動・resume する。
+Codex に hook の信頼確認が表示された場合は、追加した ccmux hook を確認する。
+
+| 操作 | キー |
+| --- | --- |
+| プレビュー付きの一覧を開く | `Ctrl+b` → `a` |
+| 一覧を閉じる | 一覧の選択中に `q` |
+| 対象のペインへ移動し、一覧を閉じる | `j` / `k` で選択 → `Enter` |
+| プレビューへ入力を送り、承認・回答する | 対象を選択 → `Tab` でプレビューに入る |
+| サイドバーを表示・非表示 | `Ctrl+b` → `Shift+s` |
+
+プレビューへの入力は対象エージェントへの実際の入力になる。通常は `Enter` で元の
+ペインへ移動して、承認内容を読んで操作する。一覧には承認・質問待ちの項目が上部にまとまる。
+サイドバー切り替えは全セッション・全ウィンドウが対象で、新しいウィンドウにも追従する。
+一覧を閉じてもエージェントや監視 daemon は終了しない。
+
+監視 daemon は一覧を開くと自動起動する。ログイン後は最初に一覧を開くか、
+`ccmux daemon start -b` を実行する。今回の Mac では導入時に起動済み。
+daemon が動いている間は、一覧を隠してもバーに待機 / 未読件数とウィンドウの印を表示する。
+macOS の通知から承認する機能は別途通知設定が必要で、今回の導入では有効化していない。
+
+状態が合わない場合は `ccmux setup --status` と `ccmux debug` を確認し、CLI の hook と
+バージョンを確認する。ccmux 更新は `brew upgrade ccmux`、必要に応じて setup を再実行し、
+`ccmux daemon restart` で再読み込みする。Homebrew が依存する tmux なども更新し得る。
+削除時は先にサイドバーを閉じ、`ccmux setup --uninstall --agent codex --agent claude --agent opencode`
+で ccmux 所有の連携を外し、daemon を停止する。Codex の hooks feature flag は自動削除されない。
+
 Intel Mac は選択した CLI にも stable Nixpkgs を使い、CI の Intel runner で検証する。
 上流の対応終了後も動くと推測して input を進めない。Intel を維持する間は最後に成功した
 lock を保存し、サポート対象 input を超える更新時は Linux / Apple Silicon の input と

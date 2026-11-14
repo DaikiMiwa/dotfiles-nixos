@@ -371,13 +371,13 @@ in
       set -g status-position bottom
       set -g status-style "bg=${palette.soil},fg=${palette.sand}"
       set -g status-left "#[fg=${palette.soil},bg=${palette.moss},bold] #S #[fg=${palette.moss},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{session_windows}w #[fg=${palette.ochre}]#{?client_prefix,PREFIX,}#[fg=${palette.sand}] #[fg=${palette.bark},bg=${palette.soil}]"
-      set -g status-right "#[fg=${palette.muted},bg=${palette.soil}] #{?window_zoomed_flag,zoom ,}#{?pane_in_mode,copy ,}#[fg=${palette.soil},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{pane_current_command} #[fg=${palette.muted}]#{b:pane_current_path} #[fg=${palette.bark},bg=${palette.olive}]#[fg=${palette.soil},bg=${palette.olive},bold] #{pane_index}/#{window_panes} #[fg=${palette.olive},bg=${palette.teal}]#[fg=${palette.soil},bg=${palette.teal},bold] #H #[fg=${palette.teal},bg=${palette.ochre}]#[fg=${palette.soil},bg=${palette.ochre},bold] %a %m/%d %H:%M "
+      set -g status-right "#[fg=${palette.muted},bg=${palette.soil}] #{@ccmux_status} #{?window_zoomed_flag,zoom ,}#{?pane_in_mode,copy ,}#[fg=${palette.soil},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{pane_current_command} #[fg=${palette.muted}]#{b:pane_current_path} #[fg=${palette.bark},bg=${palette.olive}]#[fg=${palette.soil},bg=${palette.olive},bold] #{pane_index}/#{window_panes} #[fg=${palette.olive},bg=${palette.teal}]#[fg=${palette.soil},bg=${palette.teal},bold] #H #[fg=${palette.teal},bg=${palette.ochre}]#[fg=${palette.soil},bg=${palette.ochre},bold] %a %m/%d %H:%M "
 
       set-window-option -g window-status-separator ""
       set-window-option -g window-status-style "fg=${palette.muted},bg=${palette.soil}"
-      set-window-option -g window-status-format "#[fg=${palette.muted},bg=${palette.soil}] #I:#W#{window_flags} "
+      set-window-option -g window-status-format "#[fg=${palette.muted},bg=${palette.soil}] #I:#W#{window_flags}#{@ccmux_mark} "
       set-window-option -g window-status-current-style "fg=${palette.soil},bg=${palette.olive},bold"
-      set-window-option -g window-status-current-format "#[fg=${palette.soil},bg=${palette.olive},bold] #I:#W#{window_flags} #[fg=${palette.olive},bg=${palette.soil}]"
+      set-window-option -g window-status-current-format "#[fg=${palette.soil},bg=${palette.olive},bold] #I:#W#{window_flags}#{@ccmux_mark} #[fg=${palette.olive},bg=${palette.soil}]"
       set-window-option -g window-status-activity-style "fg=${palette.ochre},bg=${palette.soil},bold"
       set-window-option -g window-status-bell-style "fg=${palette.sand},bg=${palette.clay},bold"
 
@@ -399,6 +399,11 @@ in
       set-option -sa terminal-overrides ",xterm*:Tc"
 
       bind-key m display-popup -E -w 80% -h 80% "${tmux-session-manager}/bin/tmux-session-manager"
+
+      # ccmux is installed through Brewfile on macOS. Pass the opening client
+      # explicitly so another terminal attached to this session stays put.
+      bind-key a run-shell -C 'display-popup -E -w 80% -h 75% "ccmux --preview --client-tty #{client_tty}"'
+      bind-key S run-shell -b 'ccmux sidebar --toggle'
 
       # Load after status-right so its background save hook is not overwritten.
       set -g @continuum-save-interval 15
