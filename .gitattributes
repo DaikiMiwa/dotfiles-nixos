@@ -1,0 +1,2 @@
+# Unified patches require a space on blank context lines.
+home/ccmux-picker/ui.patch whitespace=-blank-at-eol
