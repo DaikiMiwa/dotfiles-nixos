@@ -1,6 +1,14 @@
 # Neovim・tmux・WezTerm 追加レビュー
 
-## 再確認で見つかった残課題（2026-11-14、cfc607e）
+## 再確認で見つかった2点（修正済み）
+
+`cfc607e` で見つかった以下の2点を修正した。Ctrl-H は非再帰で標準キーへ渡し、
+Python は root_dir callback により通常の Basedpyright / 明示設定時の Pyrefly を排他的に選ぶ。
+親の Pyrefly 設定はネストした Git checkout へ引き継がない。
+回帰テストは実際の入力削除・LuaSnip の前フィールド移動と、4種類のプロジェクト選択を検証する。
+実環境でも通常プロジェクトは `basedpyright,ruff`、明示設定時は `pyrefly,ruff` のみ起動した。
+
+以下は修正前の再現記録。
 
 1. **中: スニペット外の Ctrl-H が Backspace として動かない。**
    `plugins/luasnip.lua` の Insert-mode mapping は、前のフィールドへ移動できない場合に
@@ -15,7 +23,6 @@
    Ruff は lint 用として残し、型検査は既定の Basedpyright と明示設定時の Pyrefly を
    排他的に選ぶ構成にするのがよい。root_markers の指定だけでは opt-in になっていない。
 
-今回は上記を再現確認して記録した。設定の変更・適用は行っていない。
 `cfc607e` の [GitHub Actions](https://github.com/DaikiMiwa/dotfiles-nixos/actions/runs/43578240392) は成功している。
 
 ## 対応内容

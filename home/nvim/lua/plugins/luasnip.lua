@@ -35,6 +35,10 @@ return {
           local luasnip = require("luasnip")
           if luasnip.locally_jumpable(-1) then
             luasnip.jump(-1)
+          else
+            -- Put the native key before queued input and prevent mapping recursion.
+            local backspace = vim.api.nvim_replace_termcodes("<C-h>", true, false, true)
+            vim.api.nvim_feedkeys(backspace, "in", false)
           end
         end,
         mode = { "i", "s" },

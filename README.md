@@ -213,8 +213,11 @@ tmux の履歴は新しいペインから50000行です。セッション構成�
 Neovim は新しい zsh で Nix wrapper を優先し、Git・GitHub CLI・`EDITOR`・`VISUAL` も
 同じ実行ファイルを使います。Nix は nil LSP と nixfmt、Bash は bashls を使います。
 Python の Ruff と LaTeX の ChkTeX 診断は LSP 側で実行します。
+Python の型検査は通常 Basedpyright、`pyrefly.toml` のあるプロジェクトでは Pyrefly を使います。
+設定ファイルを追加・削除して型検査を切り替える場合は、Neovim を開き直してください。
 LuaSnip の展開・移動は `Ctrl+l`、Copilot の確定は `Ctrl+g` → `Ctrl+y`、
 候補の破棄は `Ctrl+g` → `Ctrl+e` です。
+`Ctrl+h` はスニペット内では前のフィールドへ移動し、それ以外では標準の Backspace として動きます。
 `?` は標準の逆方向検索、`Ctrl+k` は挿入モードの digraph 入力に使えます。
 検索結果の quickfix 化は `<leader>sq`、辞書補完は `Ctrl+x` → `Ctrl+k` です。
 

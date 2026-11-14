@@ -36,8 +36,49 @@ local function get_typescript_tsdk(root_dir)
   end
 end
 
+local function pyrefly_root(bufnr)
+  local dir = vim.fs.dirname(vim.api.nvim_buf_get_name(bufnr))
+  while dir do
+    if vim.uv.fs_stat(vim.fs.joinpath(dir, "pyrefly.toml")) then
+      return dir
+    end
+    -- A nested checkout must not inherit another project's type checker.
+    if vim.uv.fs_stat(vim.fs.joinpath(dir, ".git")) then
+      break
+    end
+    local parent = vim.fs.dirname(dir)
+    if parent == dir then
+      break
+    end
+    dir = parent
+  end
+end
+
 vim.lsp.config("pyrefly", {
-  root_markers = { "pyrefly.toml" },
+  workspace_required = true,
+  root_dir = function(bufnr, on_dir)
+    local root = pyrefly_root(bufnr)
+    if root then
+      on_dir(root)
+    end
+  end,
+})
+
+vim.lsp.config("basedpyright", {
+  root_dir = function(bufnr, on_dir)
+    if pyrefly_root(bufnr) then
+      return
+    end
+    on_dir(vim.fs.root(bufnr, {
+      "pyrightconfig.json",
+      "pyproject.toml",
+      "setup.py",
+      "setup.cfg",
+      "requirements.txt",
+      "Pipfile",
+      ".git",
+    }))
+  end,
 })
 
 vim.lsp.config.astro = vim.tbl_deep_extend("force", vim.lsp.config.astro or {}, {

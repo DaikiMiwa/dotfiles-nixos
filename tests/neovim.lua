@@ -71,6 +71,32 @@ local snippets = dofile("home/nvim/lua/plugins/luasnip.lua")[1]
 local copilot = dofile("home/nvim/lua/plugins/copilot.lua")[1]
 assert(copilot.opts.suggestion.keymap.accept ~= snippets.keys[1][1], "Copilot shadows snippet expansion")
 
+local previous_field
+for _, key in ipairs(snippets.keys) do
+  if key[1] == "<C-h>" then
+    previous_field = key[2]
+    vim.keymap.set(key.mode, key[1], key[2])
+  end
+end
+assert(previous_field, "Missing snippet previous-field key")
+vim.api.nvim_buf_set_lines(0, 0, -1, false, { "ab" })
+-- Esc is already queued: the fallback must delete before Esc, without recursion.
+vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("A<C-h><Esc>", true, false, true), "xt", false)
+assert(vim.api.nvim_get_current_line() == "a", "Ctrl-H outside snippets must delete one character")
+local luasnip = require("luasnip")
+vim.api.nvim_buf_set_lines(0, 0, -1, false, { "" })
+luasnip.snip_expand(luasnip.snippet("", {
+  luasnip.insert_node(1, "one"),
+  luasnip.text_node(" "),
+  luasnip.insert_node(2, "two"),
+}))
+luasnip.jump(1)
+assert(luasnip.session.current_nodes[vim.api.nvim_get_current_buf()].pos == 2)
+previous_field()
+assert(luasnip.session.current_nodes[vim.api.nvim_get_current_buf()].pos == 1, "Ctrl-H must keep snippet navigation")
+luasnip.unlink_current()
+vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+
 local enabled
 local enable = vim.lsp.enable
 vim.lsp.enable = function(servers)
@@ -82,6 +108,41 @@ assert(vim.tbl_contains(enabled, "nil_ls"), "Nix LSP is not enabled")
 assert(vim.tbl_contains(enabled, "bashls"), "Bash LSP is not enabled")
 assert(vim.tbl_contains(enabled, "ruff"), "Ruff LSP must provide Python lint diagnostics")
 assert(vim.lsp.config.texlab.settings.texlab.chktex.onOpenAndSave, "texlab must run ChkTeX")
+
+local python_project = vim.fn.tempname()
+vim.fn.mkdir(python_project, "p")
+vim.fn.mkdir(python_project .. "/.git")
+vim.fn.writefile({ "[project]" }, python_project .. "/pyproject.toml")
+local function python_servers(file)
+  local buf = vim.api.nvim_create_buf(false, false)
+  vim.api.nvim_buf_set_name(buf, file)
+  local decisions = {}
+  for _, server in ipairs({ "basedpyright", "pyrefly" }) do
+    vim.lsp.config[server].root_dir(buf, function(root)
+      decisions[server] = { root = root }
+    end)
+  end
+  vim.api.nvim_buf_delete(buf, { force = true })
+  return decisions
+end
+local defaults = python_servers(python_project .. "/main.py")
+assert(defaults.basedpyright and not defaults.pyrefly, "Python must default to Basedpyright only")
+assert(defaults.basedpyright.root == python_project)
+vim.fn.writefile({ "" }, python_project .. "/pyrefly.toml")
+local opt_in = python_servers(python_project .. "/main.py")
+assert(opt_in.pyrefly and not opt_in.basedpyright, "Pyrefly opt-in must replace Basedpyright")
+assert(opt_in.pyrefly.root == python_project)
+local checkout = python_project .. "/child"
+vim.fn.mkdir(checkout, "p")
+vim.fn.writefile({ "gitdir: elsewhere" }, checkout .. "/.git")
+local child = python_servers(checkout .. "/main.py")
+assert(child.basedpyright and not child.pyrefly, "A nested checkout must not inherit the parent's Pyrefly config")
+vim.fn.writefile({ "" }, checkout .. "/pyrefly.toml")
+local child_opt_in = python_servers(checkout .. "/main.py")
+assert(child_opt_in.pyrefly and not child_opt_in.basedpyright)
+assert(child_opt_in.pyrefly.root == checkout)
+vim.fn.delete(python_project, "rf")
+
 local format_file = vim.fn.tempname() .. ".nix"
 vim.fn.writefile({ "{a=1;}" }, format_file)
 vim.cmd("edit! " .. vim.fn.fnameescape(format_file))

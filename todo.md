@@ -1,5 +1,19 @@
 # Repository review
 
+## Ctrl-H と Python LSP の残課題を修正する
+
+- [x] スニペット外の Ctrl-H を標準 Backspace に渡す。
+- [x] Python 型検査を既定の Basedpyright / 明示設定時の Pyrefly に排他化。
+- [x] 入力動作・スニペット移動・プロジェクト境界の回帰テストを追加。
+- [x] native checks・全環境評価と実環境の動作を確認し、適用記録を更新。
+
+回帰テストで Ctrl-H による ab → a、LuaSnip の2番目 → 1番目のフィールド移動、
+通常 / 明示設定 / ネスト Git / ネスト Git の明示設定を確認。
+実環境では通常は basedpyright + ruff、pyrefly.toml がある場合は pyrefly + ruff のみ起動。
+Lua 設定は作業ツリーへのリンクなので更新済み。起動済み Neovim は開き直す。
+最終検証: nix fmt、git diff --check、全 system の flake check（no-build）、
+Apple Silicon の6 checks がすべて成功。
+
 ## cfc607e 適用後の再確認
 
 - [x] 設定と GitHub Actions の成功を確認。
