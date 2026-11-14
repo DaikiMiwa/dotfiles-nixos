@@ -36,6 +36,10 @@ CI は3つの native runner で評価と上記チェックを実行する。全 
 システムのビルド、ログインや GUI 操作は CI の保証範囲外なので、適用前に対象環境で build する。
 commit 前に `git diff --check` と差分を確認し、意図したファイルのみ stage する。
 
+`shell-scripts` は ShellCheck に加え、WezTerm のキー定義・入力状態遷移と、
+独立した tmux socket / PTY を使った検索・ペイン移動・再接続・セッション削除を検証する。
+既存の tmux server には接続しない。macOS IME の未確定文字を使う GUI 操作は実機で確認する。
+
 ## 依存更新
 
 Nix input は必要なものを指定して `nix flake update nixpkgs home-manager` 等で更新し、
@@ -75,6 +79,12 @@ Neovim は Nix wrapper を使う。Homebrew の `nvim` が優先されている�
 PATH を確認して Home Manager のものを使う。初回起動には残りの lazy 管理 plugin の
 取得が必要。既存の lazy.nvim / Treesitter / LuaSnip の cache は、今回の構成では使わない。
 tmux は設定を reload し、Herdr は再起動して確認する。
+
+tmux / WezTerm の日本語入力連携は、Home Manager 適用後に WezTerm が設定を
+再読み込みしたことを確認し、tmux 内で `tmux source-file ~/.config/tmux/tmux.conf` を実行する。
+日本語の未確定文字がある状態で `Ctrl+b` → `w` / `m` / `[` を確認し、
+コピー中の `h/j/k/l`・`v`・`y` と、`/` 検索の日本語入力・確定・キャンセルも確認する。
+上部の `PREFIX` / `COPY` / `SEARCH` 表示と、通常入力に戻った後の IME 動作も確認する。
 
 以前の WSL の自動 Docker prune timer は、設定を適用する前にユーザーとして停止する。
 Home Manager のユーザー systemd manager が既に loaded な timer を保持する場合にも備える。

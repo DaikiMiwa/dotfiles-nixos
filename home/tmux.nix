@@ -80,13 +80,21 @@ let
               { print $0 "|" $0 }
             ' | sort | cut -d'|' -f2-)
 
-            result=$(echo "$sessions" | \
+            if result=$(echo "$sessions" | \
               fzf --prompt="Session: " \
                   --preview='tmux list-windows -t {} -F "#{window_index}: #{window_name}"' \
                   --preview-window=right:20% \
                   --expect=ctrl-q,ctrl-t,ctrl-r \
                   --no-select-1 \
-                  --header='Enter: switch | ^Q: kill | ^T: new | ^R: rename')
+                  --header='Enter: switch | ^Q: kill | ^T: new | ^R: rename'); then
+              :
+            else
+              status=$?
+              case "$status" in
+                1|130) exit 0 ;;
+                *) exit "$status" ;;
+              esac
+            fi
 
             if [ -z "$result" ]; then
               exit 0
@@ -102,7 +110,8 @@ let
                   read -r answer
                   if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
                     current_session=$(tmux display-message -p '#S')
-                    if [ "$session" = "$current_session" ]; then
+                    session_count=$(tmux list-sessions -F '#{session_id}' | wc -l)
+                    if [ "$session" = "$current_session" ] && [ "$session_count" -gt 1 ]; then
                       tmux switch-client -n
                     fi
                     tmux kill-session -t "$session"
@@ -149,6 +158,15 @@ let
                 ;;
       esac
     '';
+  };
+
+  tmux-wezterm-mode = pkgs.writeShellApplication {
+    name = "tmux-wezterm-mode";
+    runtimeInputs = [
+      pkgs.tmux
+      pkgs.coreutils
+    ];
+    text = builtins.readFile ./tmux/wezterm-mode.sh;
   };
 
   tmux-wsl-copy = pkgs.writeShellApplication {
@@ -261,6 +279,7 @@ in
 {
   home.packages = [
     tmux-session-manager
+    tmux-wezterm-mode
   ]
   ++ lib.optionals isWSL [
     codex-wsl-clipboard-image
@@ -292,6 +311,28 @@ in
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
       bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+      bind-key -T copy-mode-vi Escape send-keys -X cancel
+
+      # Notify WezTerm on mode, pane, window and session changes, including mouse
+      # entry into copy mode and attaching to an existing session.
+      ${lib.concatMapStringsSep "\n"
+        (hook: ''
+          set-hook -g ${hook}[90] 'run-shell ${tmux-wezterm-mode}/bin/tmux-wezterm-mode'
+        '')
+        [
+          "pane-mode-changed"
+          "client-attached"
+          "client-session-changed"
+          "session-window-changed"
+          "window-pane-changed"
+        ]
+      }
+      set-hook -g client-detached[90] 'run-shell "${tmux-wezterm-mode}/bin/tmux-wezterm-mode --clear #{hook_client}"'
+      # Leave text entry to the IME during searches. The command queue resumes
+      # after either accepting or cancelling the prompt, restoring Vim keys.
+      bind-key -T copy-mode-vi / run-shell -b '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --prompt-start #{client_name}' \; command-prompt -T search -p '(search down)' 'send-keys -X search-forward -- "%%"' \; run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --prompt-end #{client_name}'
+      bind-key -T copy-mode-vi ? run-shell -b '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --prompt-start #{client_name}' \; command-prompt -T search -p '(search up)' 'send-keys -X search-backward -- "%%"' \; run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --prompt-end #{client_name}'
+      run-shell ${tmux-wezterm-mode}/bin/tmux-wezterm-mode
 
       bind | split-window -h -c "#{pane_current_path}"
       bind - split-window -v -c "#{pane_current_path}"

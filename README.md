@@ -16,6 +16,7 @@ NixOS-WSL と Home Manager で管理する個人用 dotfiles です。
 - `home/dotfiles.nix`: 配置先と検証・整形コマンド
 - `home/packages/`: 用途別の CLI / 開発 / cloud / desktop / writing パッケージ
 - `tests/neovim.lua`: Neovim の依存・parser・formatter の境界条件チェック
+- `tests/wezterm.lua`・`tests/tmux.py`: キー転送・コピーモード連携・セッション管理の検証
 
 ## 前提
 
@@ -193,10 +194,15 @@ prefix は `Ctrl+b` です。WezTerm では同じキーを leader として使�
 日本語 IME に `w` などを取られずに操作するための設定です。
 `Ctrl+b` を2回押すと、ペイン内へ `Ctrl+b` を送れます。
 leader が時間切れになると操作は取り消され、prefix 自体は送られません。
+`Ctrl+b` → `Ctrl+矢印` / `Alt+矢印` のサイズ変更や、`Alt+数字` のレイアウト選択も使えます。
+WezTerm 上部に `PREFIX`（待機中）・`COPY`・`SEARCH` を表示するため、1 タブでもタブバーを表示します。
 
 コピーモードは `Ctrl+b` → `[` で開き、Vim と同じ `h/j/k/l` で移動、
 `v` で選択開始、`Ctrl+v` で矩形選択、`y` でコピーして終了、`q` で終了します。
-IME による通常入力の扱いはそのままなので、コピーモード内の移動には英数入力を使います。
+tmux が状態を WezTerm に通知するため、コピー中は日本語入力のままでも Vim 操作を使えます。
+`/`・`?` の検索欄では日本語を入力でき、確定・キャンセル後は Vim 操作に戻ります。
+ペイン・ウィンドウ・セッションの移動や再接続でも状態を同期し、通常入力に戻ると IME のキー処理を復元します。
+この連携には tmux と WezTerm 両方の設定を適用してください。
 
 WSL の tmux では、`prefix + I` で Windows クリップボード内の画像を PNG に保存し、その WSL パスを現在のペインへ貼り付けます。Codex CLI の画像貼り付けが Windows クリップボードを直接読めない場合は、このキーで画像パスを入力欄へ貼り付けて添付します。コマンド単体では `codex-wsl-clipboard-image` が保存後の WSL パスを出力し、`codex-wsl-paste-image` が tmux ペインへ貼り付けます。
 

@@ -2,11 +2,26 @@
 
 ## tmux / WezTerm の操作見直し
 
+### 追加レビューで見つかった4点
+
+- [x] WezTerm leader の Ctrl / Alt / Shift 付き操作を転送する。
+- [x] 最後の1セッションの削除と fzf のキャンセル処理を修正する。
+- [x] tmux のコピーモード状態を WezTerm に通知し、日本語入力中も Vim 操作を可能にする。
+- [x] WezTerm に prefix 待機・コピー状態を表示する。
+- [x] モード遷移・セッション削除を検証し、利用手順を更新する。
+
+追加検証: WezTerm のキー定義と状態遷移、独立した tmux socket / PTY での
+コピー・検索（日本語 UTF-8 の入力、確定・キャンセル）・ペイン移動・デタッチ・
+再接続・複数/最後のセッション削除が成功。これらを既存の shell-scripts check に統合。
+最終検証: `nix fmt`、全 system の flake check（no-build）、Apple Silicon の
+6 checks の build、実際の WezTerm による show-keys、git diff --check が成功。
+IME 自体の未確定文字を含む GUI 操作は、Home Manager 適用後に確認する。
+
 - [x] tmux の prefix を Ctrl-B に戻す。
 - [x] WezTerm の leader で日本語 IME より先に prefix 操作を処理する。
 - [x] tmux の vi コピーモードに v / Ctrl-V / y を揃える。
 - [x] 設定の検証と運用手順の更新。
-- [ ] 適用後、日本語未確定入力中の Ctrl-B → w / m / [ を実機確認。
+- [ ] 適用後、日本語未確定入力中の Ctrl-B → w / m / [ とコピー・検索を実機確認。
 
 検証: `nix fmt`、全 system の flake check（no-build）、Apple Silicon の
 format-nix / format-lua / shell-scripts / cursor-cli / dotfiles-helpers /

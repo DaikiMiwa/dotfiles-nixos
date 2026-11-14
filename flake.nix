@@ -325,6 +325,10 @@
         system:
         let
           pkgs = pkgsFor system;
+          homeConfig = self.homeConfigurations.${homeConfigurationName system}.config;
+          sessionManager = builtins.head (
+            builtins.filter (p: nixpkgs.lib.getName p == "tmux-session-manager") homeConfig.home.packages
+          );
         in
         {
           home-activation = self.homeConfigurations.${homeConfigurationName system}.activationPackage;
@@ -344,12 +348,22 @@
           shell-scripts =
             pkgs.runCommand "shell-script-check"
               {
-                nativeBuildInputs = [ pkgs.shellcheck ];
+                nativeBuildInputs = [
+                  pkgs.shellcheck
+                  pkgs.lua
+                  pkgs.python3
+                  pkgs.tmux
+                ];
+                TMUX_CONFIG = homeConfig.xdg.configFile."tmux/tmux.conf".source;
+                TMUX_SESSION_MANAGER = "${sessionManager}/bin/tmux-session-manager";
+                TEST_SHELL = "${pkgs.bash}/bin/bash";
                 src = self;
               }
               ''
                 cd "$src"
-                shellcheck home/aerospace/*.sh
+                shellcheck home/aerospace/*.sh home/tmux/*.sh
+                lua tests/wezterm.lua
+                python3 tests/tmux.py
                 touch "$out"
               '';
           format-lua =
