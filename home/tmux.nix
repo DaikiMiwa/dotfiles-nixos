@@ -175,6 +175,7 @@ let
       pkgs.tmux
       pkgs.gawk
       pkgs.gnugrep
+      pkgs.coreutils
     ];
     text = builtins.readFile ./tmux/agent-sidebar.sh;
   };

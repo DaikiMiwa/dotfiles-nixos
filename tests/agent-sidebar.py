@@ -23,8 +23,9 @@ if windows <= sidebars.keys():
     for pane in sidebars.values(): tmux("kill-pane", "-t", pane)
 else:
     for window in windows - sidebars.keys():
-        pane = tmux("split-window", "-hbd", "-l", "36", "-t", window, "-P", "-F", "#{pane_id}", "sleep 600")
-        tmux("select-pane", "-t", pane, "-T", "ccmux-sidebar")
+        # Match ccmux's delayed title: toggle returns before startup finishes.
+        command = 'sleep 0.3; tmux select-pane -t "$TMUX_PANE" -T ccmux-sidebar; sleep 600 # exec ccmux sidebar'
+        tmux("split-window", "-hbd", "-l", "36", "-t", window, "-P", "-F", "#{pane_id}", command)
 ''')
     mock.chmod(0o755)
     env = dict(os.environ, PATH=str(root) + os.pathsep + os.environ["PATH"],

@@ -5,10 +5,23 @@ command -v ccmux >/dev/null 2>&1 || exit 0
 tmux wait-for -L dotfiles-agent-sidebar
 trap 'tmux wait-for -U dotfiles-agent-sidebar 2>/dev/null || true' EXIT
 
+# ccmux returns before its staggered background panes set their titles. A
+# second hook must not mistake those starting panes for missing sidebars.
+for ((attempt = 0; attempt < 50; attempt++)); do
+  if ! tmux list-panes -a -F $'#{pane_title}\t#{pane_start_command}' | awk -F '\t' '
+    $1 != "ccmux-sidebar" && index($2, "ccmux sidebar") { pending = 1 }
+    END { exit !pending }
+  '; then
+    break
+  fi
+  sleep 0.1
+done
+[ "$attempt" -lt 50 ] || exit 0
+
 case "${1:---ensure}" in
   --toggle)
     ccmux sidebar --toggle --position left --width 36
-    if tmux list-panes -a -F '#{pane_title}' | grep -qx ccmux-sidebar; then
+    if tmux list-panes -a -F '#{pane_title} #{pane_start_command}' | grep -qE '^ccmux-sidebar( |$)|exec .*ccmux sidebar'; then
       tmux set-option -g @dotfiles-agent-sidebar 1
     else
       tmux set-option -g @dotfiles-agent-sidebar 0
