@@ -74,7 +74,8 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
         tmux("-f", config, "new-session", "-d", "-s", "work", shell)
         # Reloading must migrate a server that still has the previous prefix.
         tmux("set-option", "-g", "prefix", "M-b")
-        assert not tmux("source-file", config).stderr
+        reloaded = tmux("source-file", config)
+        assert not reloaded.stderr, reloaded.stderr
         assert tmux("show-option", "-gv", "prefix").stdout.strip() == "C-b"
         assert tmux("show-window-option", "-gv", "mode-keys").stdout.strip() == "vi"
         assert tmux("show-option", "-gv", "history-limit").stdout.strip() == "50000"
@@ -85,6 +86,7 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
         agent_list = tmux("list-keys", "-T", "prefix", "a").stdout
         assert "ccmux --preview --client-tty #{client_tty}" in agent_list
         assert "run-shell -C" in agent_list
+        assert "tmux-agent-autoapprove" in tmux("list-keys", "-T", "prefix", "A").stdout
         assert "tmux-agent-sidebar --toggle" in tmux("list-keys", "-T", "prefix", "S").stdout
         right = tmux("show-option", "-gv", "status-right").stdout
         assert "#{@ccmux_status}" in right and "continuum_save.sh" in right

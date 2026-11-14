@@ -180,6 +180,19 @@ let
     text = builtins.readFile ./tmux/agent-sidebar.sh;
   };
 
+  tmux-agent-autoapprove = pkgs.writeShellApplication {
+    name = "tmux-agent-autoapprove";
+    runtimeInputs = [
+      pkgs.python3
+      pkgs.tmux
+      pkgs.fzf
+      (if pkgs.stdenv.isDarwin then pkgs.darwin.ps else pkgs.procps)
+    ];
+    text = ''
+      exec python3 ${./tmux/auto-approve.py} "$@"
+    '';
+  };
+
   tmux-wsl-copy = pkgs.writeShellApplication {
     name = "tmux-wsl-copy";
     runtimeInputs = [
@@ -292,6 +305,7 @@ in
     tmux-session-manager
     tmux-wezterm-mode
     tmux-agent-sidebar
+    tmux-agent-autoapprove
   ]
   ++ lib.optionals isWSL [
     codex-wsl-clipboard-image
@@ -383,7 +397,7 @@ in
       set -g status-position bottom
       set -g status-style "bg=${palette.soil},fg=${palette.sand}"
       set -g status-left "#[fg=${palette.soil},bg=${palette.moss},bold] #S #[fg=${palette.moss},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{session_windows}w #[fg=${palette.ochre}]#{?client_prefix,PREFIX,}#[fg=${palette.sand}] #[fg=${palette.bark},bg=${palette.soil}]"
-      set -g status-right "#[fg=${palette.muted},bg=${palette.soil}] #{@ccmux_status} #{?window_zoomed_flag,zoom ,}#{?pane_in_mode,copy ,}#[fg=${palette.soil},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{pane_current_command} #[fg=${palette.muted}]#{b:pane_current_path} #[fg=${palette.bark},bg=${palette.olive}]#[fg=${palette.soil},bg=${palette.olive},bold] #{pane_index}/#{window_panes} #[fg=${palette.olive},bg=${palette.teal}]#[fg=${palette.soil},bg=${palette.teal},bold] #H #[fg=${palette.teal},bg=${palette.ochre}]#[fg=${palette.soil},bg=${palette.ochre},bold] %a %m/%d %H:%M "
+      set -g status-right "#[fg=${palette.muted},bg=${palette.soil}] #{@ccmux_status} #{?#{@agent-auto-approve},AUTO ,}#{?window_zoomed_flag,zoom ,}#{?pane_in_mode,copy ,}#[fg=${palette.soil},bg=${palette.bark}]#[fg=${palette.sand},bg=${palette.bark}] #{pane_current_command} #[fg=${palette.muted}]#{b:pane_current_path} #[fg=${palette.bark},bg=${palette.olive}]#[fg=${palette.soil},bg=${palette.olive},bold] #{pane_index}/#{window_panes} #[fg=${palette.olive},bg=${palette.teal}]#[fg=${palette.soil},bg=${palette.teal},bold] #H #[fg=${palette.teal},bg=${palette.ochre}]#[fg=${palette.soil},bg=${palette.ochre},bold] %a %m/%d %H:%M "
 
       set-window-option -g window-status-separator ""
       set-window-option -g window-status-style "fg=${palette.muted},bg=${palette.soil}"
@@ -415,10 +429,13 @@ in
       # ccmux is installed through Brewfile on macOS. Pass the opening client
       # explicitly so another terminal attached to this session stays put.
       bind-key a run-shell -C 'display-popup -E -w 80% -h 75% "ccmux --preview --client-tty #{client_tty}"'
+      bind-key A display-popup -E -w 85% -h 80% '${tmux-agent-autoapprove}/bin/tmux-agent-autoapprove'
       bind-key S run-shell -b '${tmux-agent-sidebar}/bin/tmux-agent-sidebar --toggle'
       set-hook -g client-attached[91] 'run-shell -b ${tmux-agent-sidebar}/bin/tmux-agent-sidebar'
       set-hook -g after-new-session[91] 'run-shell -b ${tmux-agent-sidebar}/bin/tmux-agent-sidebar'
       run-shell -b '${tmux-agent-sidebar}/bin/tmux-agent-sidebar'
+      set-hook -g client-attached[92] 'run-shell -b "${tmux-agent-autoapprove}/bin/tmux-agent-autoapprove start"'
+      run-shell -b '${tmux-agent-autoapprove}/bin/tmux-agent-autoapprove start'
 
       # Load after status-right so its background save hook is not overwritten.
       set -g @continuum-save-interval 15

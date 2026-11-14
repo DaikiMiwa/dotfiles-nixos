@@ -356,6 +356,7 @@
                   pkgs.lua
                   pkgs.python3
                   pkgs.tmux
+                  (if pkgs.stdenv.isDarwin then pkgs.darwin.ps else pkgs.procps)
                 ];
                 TMUX_CONFIG = homeConfig.xdg.configFile."tmux/tmux.conf".source;
                 TMUX_SESSION_MANAGER = "${sessionManager}/bin/tmux-session-manager";
@@ -369,6 +370,7 @@
                 lua tests/wezterm.lua
                 python3 tests/tmux.py
                 python3 tests/agent-sidebar.py
+                python3 tests/auto-approve.py
                 python3 tests/shell-advisor.py
                 touch "$out"
               '';

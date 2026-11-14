@@ -48,6 +48,7 @@ assert(binding(config.key_tables.tmux_copy, "phys:H", "NONE").value == "h")
 assert(binding(config.key_tables.tmux_copy, "phys:V", "CTRL").value == "\x16")
 -- Agent monitor shortcuts must also bypass IME after the prefix.
 assert(binding(config.key_tables.tmux_prefix, "phys:A", "NONE").value[2].value == "a")
+assert(binding(config.key_tables.tmux_prefix, "phys:A", "SHIFT").value[2].value == "A")
 assert(binding(config.key_tables.tmux_prefix, "phys:S", "SHIFT").value[2].value == "S")
 
 local pane = { mode = "off" }

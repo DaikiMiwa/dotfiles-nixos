@@ -1,5 +1,20 @@
 # Repository review
 
+## セッションごとの自動承認
+
+- [x] ccmux の承認 API とセッション識別・状態更新の仕様を確認。
+- [x] セッションごとの ON / OFF UI と既定 OFF の監視処理を追加。
+- [x] CLI ごとの承認キー、重複送信、OFF・再起動時の振る舞いを検証。
+- [x] 全体検証・操作手順の更新・macOS への適用。
+
+Ctrl+b Shift+a でエージェント単位の設定画面、Enter で ON / OFF。
+既定 OFF、プロセス / 会話の識別変更時も OFF。ccmux の世代チェック付き承認 API を利用。
+隔離した実 ccmux と模擬エージェントで Codex Enter / Claude 通常1 / 計画2 を確認。
+背景監視と設定画面の ON / OFF 操作も確認し、ユーザーの実セッションはすべて OFF のまま。
+Darwin のプロセス照会には Nix 管理の ps を使い、sandbox 内の native check も成功。
+全 system の flake check（no-build）、Apple Silicon の6 checks、Home Manager build が成功。
+Home Manager switch と実 tmux の設定再読み込みが成功。新しいキー割当と4エージェントすべて OFF を確認。
+
 ## 左サイドバー常駐と承認プレビュー
 
 - [x] ccmux のプレビュー入力と常駐サイドバーの仕様を確認。
@@ -13,7 +28,7 @@
 実環境で見つかった stagger 起動中の重複を修正。タイトル設定前のプロセスも認識し、
 遅延起動を再現する回帰テストで reload / toggle / 新規セッションの動作を確認。
 CLI や承認画面により送信キーが異なるため、固定の y 連打は導入していない。
-自動送信 / 手動送信のどちらを実装するかの質問は回答待ち。
+追加指示を受け、セッションごとの明示的な ON / OFF を持つ自動承認を実装する。
 
 ## ccmux を追加する
 
