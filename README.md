@@ -179,6 +179,10 @@ lazy.nvim・Treesitter 本体と parser・LuaSnip は Nix input で更新しま�
 - terminal multiplexer: tmux
 - containers: Docker, Docker Compose
 - CLI tools: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `gh`, `ghq`, `lazygit`
+
+対話型 zsh では、`shell-advisor` が履歴のコマンド種別を集計し、Claude Code に操作改善のヒントを尋ねます。分析は最大1時間に1回、プロンプトの表示をきっかけにバックグラウンドで実行し、結果は後のプロンプトで表示します。macOS ではデスクトップ通知も送ります。パス・引数・履歴の生テキストは送らず、許可リストのコマンド回数と一部の操作順のみ送信します。Claude Code の認証とネットワークが必要で、利用に応じた料金や利用枠を消費する場合があります。
+
+`shell-advisor off` / `shell-advisor on` で停止・再開、`shell-advisor status` で状態を確認できます。シェルが動いていない間は実行されません。結果と実行時刻は `${XDG_STATE_HOME:-~/.local/state}/shell-advisor` に保存します。
 - AI coding CLI: opencode
 - cloud CLIs: AWS CLI, Azure CLI, Google Cloud CLI
 - development tools: Node.js, Python, Terraform, Lua, TypeScript, Nix 関連ツール

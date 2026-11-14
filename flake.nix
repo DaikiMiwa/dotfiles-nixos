@@ -364,6 +364,7 @@
                 shellcheck home/aerospace/*.sh home/tmux/*.sh
                 lua tests/wezterm.lua
                 python3 tests/tmux.py
+                python3 tests/shell-advisor.py
                 touch "$out"
               '';
           format-lua =

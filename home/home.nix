@@ -25,6 +25,7 @@ in
     ./moshi.nix
     ./nvim.nix
     ./opencode.nix
+    ./shell-advisor.nix
     ./herdr.nix
     ./tmux.nix
     ./wezterm.nix
