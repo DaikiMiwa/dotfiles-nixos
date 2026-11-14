@@ -69,6 +69,8 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
 
     try:
         tmux("-f", config, "new-session", "-d", "-s", "work", shell)
+        # Reloading must migrate a server that still has the previous prefix.
+        tmux("set-option", "-g", "prefix", "M-b")
         assert not tmux("source-file", config).stderr
         assert tmux("show-option", "-gv", "prefix").stdout.strip() == "C-b"
         assert tmux("show-window-option", "-gv", "mode-keys").stdout.strip() == "vi"

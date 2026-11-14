@@ -301,6 +301,9 @@ in
     ];
 
     extraConfig = ''
+      # Home Manager omits the default prefix; reset older running servers too.
+      set -g prefix C-b
+      unbind-key M-b
       bind-key C-b send-prefix
 
       bind h select-pane -L

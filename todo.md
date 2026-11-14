@@ -2,7 +2,19 @@
 
 ## tmux / WezTerm の操作見直し
 
-### 追加レビューで見つかった4点
+### macOS への適用
+
+- [x] Home Manager の build / switch（移行修正も再適用済み）。
+- [x] 既存 tmux の設定再読み込み、C-b / vi と既存2セッションを確認。
+- [x] WezTerm の設定配置と show-keys で新しいキー定義を確認。
+- [x] IME 実機確認の可否を確認（GUI 操作はアプリ制限で不可）。
+
+適用時に、Home Manager が既定 prefix の設定を省略するため稼働中サーバーに
+M-b が残ることを確認。明示的な C-b 設定と旧 binding の除去、移行テストを追加した。
+全 system の評価、Apple Silicon の6 checks、Home Manager build / switch が成功。
+WezTerm の GUI 操作は Computer Use のアプリ制限で拒否されたため、IME 実機確認は行えない。
+
+### 追加レビューの4点（実装・検証済み）
 
 - [x] WezTerm leader の Ctrl / Alt / Shift 付き操作を転送する。
 - [x] 最後の1セッションの削除と fzf のキャンセル処理を修正する。
