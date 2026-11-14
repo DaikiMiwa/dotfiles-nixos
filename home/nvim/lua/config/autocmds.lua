@@ -32,7 +32,13 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 
 vim.api.nvim_create_autocmd("VimResized", {
   group = augroup("resize_splits"),
-  command = "tabdo wincmd =",
+  callback = function()
+    local window = vim.api.nvim_get_current_win()
+    vim.cmd("tabdo wincmd =")
+    if vim.api.nvim_win_is_valid(window) then
+      vim.api.nvim_set_current_win(window)
+    end
+  end,
 })
 
 vim.api.nvim_create_autocmd("FileType", {

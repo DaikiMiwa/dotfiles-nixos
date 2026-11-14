@@ -1,4 +1,6 @@
 local servers = {
+  "nil_ls",
+  "bashls",
   "astro",
   "tailwindcss",
   "emmet_language_server",

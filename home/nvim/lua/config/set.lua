@@ -90,7 +90,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.keymap.set(
   "n",
-  "?",
+  "<leader>sq",
   "<cmd>silent vimgrep//gj%|copen<cr>",
   { desc = "Populate latest search result to quickfix list" }
 )
@@ -149,4 +149,4 @@ for _, dictionary in ipairs(english_dictionary_candidates) do
   end
 end
 
-vim.keymap.set("i", "<C-k>", "<C-x><C-k>", { desc = "Complete from English dictionary" })
+-- Dictionary completion uses Vim's native Ctrl-X Ctrl-K; Ctrl-K keeps digraphs.

@@ -8,10 +8,10 @@ return {
         auto_trigger = true,
         hide_during_completion = false,
         keymap = {
-          accept = "<C-l>",
+          accept = "<C-g><C-y>",
           accept_word = false,
           accept_line = false,
-          dismiss = "<C-e>",
+          dismiss = "<C-g><C-e>",
         },
       },
       filetypes = {

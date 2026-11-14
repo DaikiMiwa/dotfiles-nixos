@@ -293,6 +293,7 @@ in
     focusEvents = true;
     keyMode = "vi";
     mouse = true;
+    historyLimit = 50000;
     prefix = "C-b";
     shell = "${pkgs.zsh}/bin/zsh";
     terminal = "tmux-256color";
@@ -398,6 +399,11 @@ in
       set-option -sa terminal-overrides ",xterm*:Tc"
 
       bind-key m display-popup -E -w 80% -h 80% "${tmux-session-manager}/bin/tmux-session-manager"
+
+      # Load after status-right so its background save hook is not overwritten.
+      set -g @continuum-save-interval 15
+      set -g @continuum-restore off
+      run-shell '${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum/continuum.tmux >/dev/null 2>&1'
     '';
   };
 }

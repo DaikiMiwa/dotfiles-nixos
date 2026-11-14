@@ -185,7 +185,7 @@ in
       };
       init.defaultBranch = "main";
       pull.rebase = false;
-      core.editor = "nvim";
+      core.editor = "${config.programs.neovim.finalPackage}/bin/nvim";
       ghq.root = "~/src";
     };
   };
@@ -242,7 +242,7 @@ in
     enable = true;
     settings = {
       git_protocol = "https";
-      editor = "nvim";
+      editor = "${config.programs.neovim.finalPackage}/bin/nvim";
     };
   };
 }

@@ -10,6 +10,8 @@ return {
       -- Avoid runtime binary downloads; plugin revisions stay in lazy-lock.json.
       fuzzy = { implementation = "lua" },
       keymap = {
+        -- Keep Vim's native digraph input instead of Blink's default signature key.
+        ["<C-k>"] = false,
         ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
         ["<C-n>"] = { "show", "select_next" },
         ["<C-p>"] = { "show", "select_prev" },

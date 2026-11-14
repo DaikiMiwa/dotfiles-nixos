@@ -13,16 +13,13 @@ return {
       local function linters_for_current_buffer()
         local ft = vim.bo.filetype
 
-        if ft == "python" then
-          return { "ruff" }
-        end
-
         if ft == "terraform" and has_root_file({ ".tflint.hcl" }) then
           return { "tflint" }
         end
 
         if ft == "tex" or ft == "plaintex" then
-          local linters = { "chktex" }
+          -- Ruff and ChkTeX diagnostics are provided by their LSP integrations.
+          local linters = {}
           if has_root_file({ ".vale.ini", "_vale.ini" }) then
             table.insert(linters, "vale")
           end

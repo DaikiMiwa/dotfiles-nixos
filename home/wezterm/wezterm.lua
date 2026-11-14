@@ -49,23 +49,37 @@ config.font_size = 14.0
 -- 副作用として Ctrl-A / Ctrl-E などの terminal shortcut に影響しうる。
 config.macos_forward_to_ime_modifier_mask = "SHIFT|CTRL"
 
--- tmux の prefix と次のキーを IME より先に処理する。
--- 2 秒以内に次のキーを押すと、Ctrl-B とそのキーをまとめて tmux へ送る。
--- 通常入力の Ctrl-H は引き続き IME に渡す。
-config.leader = { key = "phys:B", mods = "CTRL", timeout_milliseconds = 2000 }
-config.keys = {}
-config.key_tables = { tmux_copy = {} }
+-- tmux 接続中だけ prefix 待機に入り、次のキーも IME より先に処理する。
+-- 未接続・デタッチ後は Ctrl-B をそのままアプリに渡す。
+local function tmux_connected(mode)
+  return mode == "normal" or mode == "prompt" or (mode or ""):match("^copy:") ~= nil
+end
+local prefix = wezterm.action_callback(function(window, pane)
+  if tmux_connected(pane:get_user_vars().TMUX_MODE) then
+    window:perform_action(
+      wezterm.action.ActivateKeyTable({
+        name = "tmux_prefix",
+        one_shot = true,
+        timeout_milliseconds = 2000,
+      }),
+      pane
+    )
+  else
+    window:perform_action(wezterm.action.SendString("\x02"), pane)
+  end
+end)
+config.keys = { { key = "phys:B", mods = "CTRL", action = prefix } }
+config.key_tables = { tmux_prefix = {}, tmux_copy = {} }
 config.status_update_interval = 100
 
 -- prefix の後と、tmux コピーモード内で同じキー集合を扱う。
 local function forward(key, mods, action)
   local leader_action = wezterm.action.Multiple({ wezterm.action.SendString("\x02"), action })
-  table.insert(config.keys, {
-    key = key,
-    mods = mods == "NONE" and "LEADER" or "LEADER|" .. mods,
-    action = leader_action,
-  })
-  table.insert(config.key_tables.tmux_copy, { key = key, mods = mods, action = action })
+  table.insert(config.key_tables.tmux_prefix, { key = key, mods = mods, action = leader_action })
+  -- Prefix handling must also work while the copy table is active.
+  if not (key == "phys:B" and mods == "CTRL") then
+    table.insert(config.key_tables.tmux_copy, { key = key, mods = mods, action = action })
+  end
 end
 
 local function text_key(key, mods, text)
@@ -129,8 +143,12 @@ end
 -- tmux は mode/pane/window/session の変更を OSC 1337 で通知する。
 -- COPY の間だけ英字を IME より先に処理し、検索欄と通常入力は IME に任せる。
 local function sync_tmux_mode(window, pane, mode)
-  mode = mode or pane:get_user_vars().TMUX_MODE or "normal"
+  mode = mode or pane:get_user_vars().TMUX_MODE or "off"
   local active = window:active_key_table()
+  if not tmux_connected(mode) and active == "tmux_prefix" then
+    window:perform_action(wezterm.action.PopKeyTable, pane)
+    active = window:active_key_table()
+  end
   if mode:match("^copy:") then
     if active == nil then
       window:perform_action(wezterm.action.ActivateKeyTable({ name = "tmux_copy", one_shot = false }), pane)
@@ -140,7 +158,7 @@ local function sync_tmux_mode(window, pane, mode)
   end
 
   local label = ""
-  if window:leader_is_active() then
+  if window:active_key_table() == "tmux_prefix" then
     label = " PREFIX "
   elseif window:active_key_table() == "tmux_copy" then
     label = " COPY "

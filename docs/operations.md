@@ -85,6 +85,20 @@ tmux / WezTerm の日本語入力連携は、Home Manager 適用後に WezTerm �
 日本語の未確定文字がある状態で `Ctrl+b` → `w` / `m` / `[` を確認し、
 コピー中の `h/j/k/l`・`v`・`y` と、`/` 検索の日本語入力・確定・キャンセルも確認する。
 上部の `PREFIX` / `COPY` / `SEARCH` 表示と、通常入力に戻った後の IME 動作も確認する。
+デタッチ後は `Ctrl+b` が単独でアプリへ届くことを確認する。
+
+Neovim の起動経路変更後は、新しい zsh で `command -v nvim` が Nix store 内の
+wrapper を指すことを確認する。Git・GitHub CLI のエディタ指定も wrapper の絶対パスになる。
+起動済みの Neovim は開き直す。リサイズ時に元のタブ・ウィンドウを維持すること、
+Nix の保存時整形、`?` / Ctrl-K と補完キーを確認する。
+
+tmux の履歴上限50000行は、新しいウィンドウ・ペインから有効になる。
+既存のペインで失われた履歴は復元されない。
+tmux-continuum は status-right の background hook で15分ごとにセッションを保存する。
+設定再読み込み後は `tmux show-option -gv status-right` に `continuum_save.sh` があることを確認する。
+保存は `~/.tmux/resurrect/`（既定）、手動保存は prefix + Ctrl-S、復元は prefix + Ctrl-R。
+自動保存は最初の導入から約15分後に始まる。複数 tmux server の場合、continuum は
+別 server の保存との競合を避けるため一部 server の自動保存を止める場合がある。
 
 以前の WSL の自動 Docker prune timer は、設定を適用する前にユーザーとして停止する。
 Home Manager のユーザー systemd manager が既に loaded な timer を保持する場合にも備える。

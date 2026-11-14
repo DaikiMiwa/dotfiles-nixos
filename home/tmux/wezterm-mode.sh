@@ -16,7 +16,7 @@ case "${1:-}" in
   --prompt-start) tmux set-option -g "@wezterm-prompt-$2" 1 ;;
   --prompt-end) tmux set-option -gu "@wezterm-prompt-$2" ;;
   --clear)
-    notify "$2" normal
+    notify "$2" off
     tmux set-option -gu "@wezterm-prompt-$2" 2>/dev/null || true
     exit 0
     ;;

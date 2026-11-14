@@ -380,8 +380,10 @@
           neovim-config =
             pkgs.runCommand "neovim-config-check"
               {
+                NVIM_CONFORM_TEST_PATH = "${pkgs.vimPlugins.conform-nvim}";
                 nativeBuildInputs = [
                   self.homeConfigurations.${homeConfigurationName system}.config.programs.neovim.finalPackage
+                  pkgs.nixfmt-rfc-style
                 ];
                 src = self;
               }

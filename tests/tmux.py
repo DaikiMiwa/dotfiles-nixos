@@ -15,7 +15,10 @@ import time
 
 with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
     socket = str(Path(directory) / "s")
-    env = dict(os.environ, TERM="xterm-256color")
+    home = Path(directory) / "home"
+    home.mkdir()
+    env = dict(os.environ, TERM="xterm-256color", HOME=str(home),
+               XDG_DATA_HOME=str(home / "data"), XDG_STATE_HOME=str(home / "state"))
     env.pop("TMUX", None)
     config = os.environ["TMUX_CONFIG"]
     manager = os.environ["TMUX_SESSION_MANAGER"]
@@ -74,6 +77,9 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
         assert not tmux("source-file", config).stderr
         assert tmux("show-option", "-gv", "prefix").stdout.strip() == "C-b"
         assert tmux("show-window-option", "-gv", "mode-keys").stdout.strip() == "vi"
+        assert tmux("show-option", "-gv", "history-limit").stdout.strip() == "50000"
+        assert tmux("show-option", "-gv", "@continuum-save-interval").stdout.strip() == "15"
+        assert tmux("show-option", "-gv", "@continuum-restore").stdout.strip() == "off"
         pane = tmux("display-message", "-p", "-t", "work", "#{pane_id}").stdout.strip()
         master, slave = pty.openpty()
 
@@ -116,7 +122,7 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
         expect_mode("normal", select_and_copy)
         expect_mode(f"copy:{pane}", lambda: tmux("copy-mode", "-t", pane))
         tty = tmux("list-clients", "-F", "#{client_tty}").stdout.strip()
-        expect_mode("normal", lambda: tmux("detach-client", "-t", tty))
+        expect_mode("off", lambda: tmux("detach-client", "-t", tty))
         client.wait(timeout=10)
         os.close(master)
         master, slave = pty.openpty()

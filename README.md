@@ -15,7 +15,7 @@ NixOS-WSL と Home Manager で管理する個人用 dotfiles です。
 - `home/opencode.nix`: opencode CLI
 - `home/dotfiles.nix`: 配置先と検証・整形コマンド
 - `home/packages/`: 用途別の CLI / 開発 / cloud / desktop / writing パッケージ
-- `tests/neovim.lua`: Neovim の依存・parser・formatter の境界条件チェック
+- `tests/neovim.lua`: Neovim の依存・parser・初回保存整形・編集動作のチェック
 - `tests/wezterm.lua`・`tests/tmux.py`: キー転送・コピーモード連携・セッション管理の検証
 
 ## 前提
@@ -189,11 +189,12 @@ Neovim の設定は `home/nvim/` に置き、Home Manager で `~/.config/nvim` �
 
 tmux では、`prefix + m` で fzf ベースのセッション管理ポップアップを開けます。
 
-prefix は `Ctrl+b` です。WezTerm では同じキーを leader として使い、2 秒以内に
+prefix は `Ctrl+b` です。WezTerm では tmux 接続中だけ同じキーで待機し、2 秒以内に
 続けて押した英字・数字・記号などとまとめて tmux に送ります。
 日本語 IME に `w` などを取られずに操作するための設定です。
 `Ctrl+b` を2回押すと、ペイン内へ `Ctrl+b` を送れます。
 leader が時間切れになると操作は取り消され、prefix 自体は送られません。
+tmux 未接続・デタッチ後は `Ctrl+b` をそのままシェルやアプリに送ります。
 `Ctrl+b` → `Ctrl+矢印` / `Alt+矢印` のサイズ変更や、`Alt+数字` のレイアウト選択も使えます。
 WezTerm 上部に `PREFIX`（待機中）・`COPY`・`SEARCH` を表示するため、1 タブでもタブバーを表示します。
 
@@ -203,6 +204,19 @@ tmux が状態を WezTerm に通知するため、コピー中は日本語入力
 `/`・`?` の検索欄では日本語を入力でき、確定・キャンセル後は Vim 操作に戻ります。
 ペイン・ウィンドウ・セッションの移動や再接続でも状態を同期し、通常入力に戻ると IME のキー処理を復元します。
 この連携には tmux と WezTerm 両方の設定を適用してください。
+
+tmux の履歴は新しいペインから50000行です。セッション構成は tmux-continuum で
+15分ごとに保存し、`Ctrl+b` → `Ctrl+s` で手動保存、`Ctrl+b` → `Ctrl+r` で復元できます。
+保存対象は tmux-resurrect が扱うセッション・ペイン・作業ディレクトリなどで、
+起動中の任意のプロセスや未保存の編集内容を完全に復元するものではありません。
+
+Neovim は新しい zsh で Nix wrapper を優先し、Git・GitHub CLI・`EDITOR`・`VISUAL` も
+同じ実行ファイルを使います。Nix は nil LSP と nixfmt、Bash は bashls を使います。
+Python の Ruff と LaTeX の ChkTeX 診断は LSP 側で実行します。
+LuaSnip の展開・移動は `Ctrl+l`、Copilot の確定は `Ctrl+g` → `Ctrl+y`、
+候補の破棄は `Ctrl+g` → `Ctrl+e` です。
+`?` は標準の逆方向検索、`Ctrl+k` は挿入モードの digraph 入力に使えます。
+検索結果の quickfix 化は `<leader>sq`、辞書補完は `Ctrl+x` → `Ctrl+k` です。
 
 WSL の tmux では、`prefix + I` で Windows クリップボード内の画像を PNG に保存し、その WSL パスを現在のペインへ貼り付けます。Codex CLI の画像貼り付けが Windows クリップボードを直接読めない場合は、このキーで画像パスを入力欄へ貼り付けて添付します。コマンド単体では `codex-wsl-clipboard-image` が保存後の WSL パスを出力し、`codex-wsl-paste-image` が tmux ペインへ貼り付けます。
 

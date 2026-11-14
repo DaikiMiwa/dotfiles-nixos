@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   lazyNvim = pkgs.vimPlugins.lazy-nvim.overrideAttrs (old: {
@@ -45,6 +50,14 @@ let
   );
 in
 {
+  # Login shells may put Homebrew first; keep editor commands on the Nix wrapper.
+  programs.zsh.initContent = lib.mkBefore ''
+    path=(${config.programs.neovim.finalPackage}/bin $path)
+  '';
+  home.sessionVariables = {
+    EDITOR = lib.mkForce "${config.programs.neovim.finalPackage}/bin/nvim";
+    VISUAL = "${config.programs.neovim.finalPackage}/bin/nvim";
+  };
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink "${config.dotfiles.repository}/home/nvim";
 

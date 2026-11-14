@@ -1,5 +1,27 @@
 # Repository review
 
+## レビュー項目をすべて修正・適用する
+
+- [x] Neovim の起動経路とエディタ指定を Nix wrapper に統一。
+- [x] リサイズ・標準キー・補完キーを修正。
+- [x] Nix / Bash LSP と Nix 整形を接続し、診断の二重実行を解消。
+- [x] tmux 履歴を拡大し、セッションを定期保存。
+- [x] WezTerm の prefix を tmux 接続中だけ有効にする。
+- [x] 回帰テスト・全環境評価・native checks を実行し、手順を更新。
+- [x] macOS に適用して反映確認。
+
+実環境で新しい zsh の nvim / Git / gh が同じ Nix wrapper を選び、起動することを確認。
+一時ファイルで nil_ls / bashls の初期化と、既存・新規 Nix ファイルの初回保存整形が成功。
+tmux は履歴50000行、自動保存 hook と実際の保存ファイル作成を確認。既存2セッションも維持。
+Conform が手動キー操作まで読み込まれない不具合も修正した。
+CI は Nix の Conform fixture と実際の Lazy event を使って初回保存を検証する。
+`-u NONE` による loadplugins 無効化で lazy.setup が省略される既存テストの問題も修正した。
+WezTerm のキー定義と未接続・接続・コピー・デタッチの遷移を自動検証。
+GUI アプリ操作は引き続き制限されているため、macOS IME の未確定文字を使う実機確認は未実施。
+最終検証: nix fmt、git diff --check、全 system の flake check（no-build）、
+Apple Silicon の6 checks がすべて成功。Home Manager build / switch も成功。
+起動済みのシェルと Neovim は開き直して、新しい起動経路・キー設定を利用する。
+
 ## 追加レビュー: Neovim / tmux / WezTerm
 
 - [x] 現在の設定と既存テストを読む。

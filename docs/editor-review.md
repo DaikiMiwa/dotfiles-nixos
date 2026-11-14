@@ -1,5 +1,23 @@
 # Neovim・tmux・WezTerm 追加レビュー
 
+## 対応内容
+
+以下のレビュー項目を修正した。
+
+- zsh の editor package の PATH と Git / GitHub CLI / EDITOR / VISUAL を Nix wrapper に統一。
+- リサイズ後のアクティブウィンドウを維持。
+- nil_ls / bashls / nixfmt を接続し、Ruff / ChkTeX の CLI 二重実行を除去。
+- Conform を BufReadPre / BufNewFile で読み込み、最初の保存から自動整形を有効化。
+- Copilot の確定を Ctrl-G Ctrl-Y、破棄を Ctrl-G Ctrl-E に分離。
+- `?` / Ctrl-K を標準操作に戻し、quickfix 作成は leader + s q、辞書補完は Ctrl-X Ctrl-K。
+- tmux 履歴を50000行にし、tmux-continuum で15分ごとにセッションを保存。
+- WezTerm の prefix を tmux 接続中のみ有効にし、未接続・デタッチ後は Ctrl-B を直接送信。
+
+回帰検証を `tests/neovim.lua`・`tests/wezterm.lua`・`tests/tmux.py` に追加した。
+macOS の適用状態と最終検証結果は `todo.md` に記録する。
+
+## 修正前のレビュー記録
+
 2026-11-14、`b98818b` の設定と macOS の適用状態を確認。
 このレビューでは設定の変更・適用は行っていない。
 

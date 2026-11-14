@@ -31,12 +31,14 @@ end
 return {
   {
     "stevearc/conform.nvim",
+    event = { "BufReadPre", "BufNewFile" },
     opts = {
       format_on_save = {
         timeout_ms = 1000,
         lsp_format = "fallback",
       },
       formatters_by_ft = {
+        nix = { "nixfmt" },
         astro = { "prettier" },
         css = { "prettier" },
         html = { "prettier" },
