@@ -90,6 +90,8 @@ class Approver:
         token = identity(row)
         # OFF waits for an in-flight request to finish; none start after it returns.
         with self.lock("policy.lock"):
+            if enabled is None:
+                enabled = not self.enabled(row, self.policies())
             self.tmux("set-option", "-p", "-t", row["tmuxPane"], OPTION, token if enabled else "")
 
     def foreground(self, row):
@@ -230,8 +232,9 @@ class Approver:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--socket")
+    parser.add_argument("--json", action="store_true")
     parser.add_argument("--port", type=int, default=int(os.environ.get("CCMUX_PORT", "2269")))
-    parser.add_argument("command", nargs="?", default="menu", choices=("menu", "start", "worker", "status", "on", "off"))
+    parser.add_argument("command", nargs="?", default="menu", choices=("menu", "start", "worker", "status", "on", "off", "toggle"))
     parser.add_argument("session", nargs="?")
     args = parser.parse_args()
     socket = args.socket or subprocess.check_output(["tmux", "display-message", "-p", "#{socket_path}"], text=True).strip()
@@ -240,13 +243,17 @@ def main():
         getattr(approver, args.command)()
     elif args.command == "status":
         policies = approver.policies()
-        for row in approver.sessions():
-            print("ON" if approver.enabled(row, policies) else "OFF", row["id"], row.get("tmuxTarget"))
+        rows = approver.sessions()
+        if args.json:
+            print(json.dumps({row["id"]: approver.enabled(row, policies) for row in rows}))
+        else:
+            for row in rows:
+                print("ON" if approver.enabled(row, policies) else "OFF", row["id"], row.get("tmuxTarget"))
     else:
         row = next((r for r in approver.sessions() if r["id"] == args.session), None)
         if row is None:
             raise ValueError("Select a live ccmux session ID")
-        approver.set_enabled(row, args.command == "on")
+        approver.set_enabled(row, None if args.command == "toggle" else args.command == "on")
         approver.start()
 
 

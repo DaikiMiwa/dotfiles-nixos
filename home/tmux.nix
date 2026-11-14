@@ -193,6 +193,22 @@ let
     '';
   };
 
+  ccmux-picker = import ./ccmux-picker/package.nix { inherit pkgs; };
+  tmux-agent-picker = pkgs.writeShellApplication {
+    name = "tmux-agent-picker";
+    runtimeInputs = [
+      ccmux-picker
+      tmux-agent-autoapprove
+      pkgs.tmux
+      pkgs.git
+    ];
+    text = ''
+      # Keep the Homebrew daemon and integrations; extend only the picker UI.
+      ccmux show --json >/dev/null
+      exec ${ccmux-picker}/bin/ccmux-agent-picker "$@"
+    '';
+  };
+
   tmux-wsl-copy = pkgs.writeShellApplication {
     name = "tmux-wsl-copy";
     runtimeInputs = [
@@ -306,6 +322,7 @@ in
     tmux-wezterm-mode
     tmux-agent-sidebar
     tmux-agent-autoapprove
+    tmux-agent-picker
   ]
   ++ lib.optionals isWSL [
     codex-wsl-clipboard-image
@@ -428,7 +445,7 @@ in
 
       # ccmux is installed through Brewfile on macOS. Pass the opening client
       # explicitly so another terminal attached to this session stays put.
-      bind-key a run-shell -C 'display-popup -E -w 80% -h 75% "ccmux --preview --client-tty #{client_tty}"'
+      bind-key a run-shell -C 'display-popup -E -w 80% -h 75% "${tmux-agent-picker}/bin/tmux-agent-picker --client-tty #{client_tty}"'
       bind-key A display-popup -E -w 85% -h 80% '${tmux-agent-autoapprove}/bin/tmux-agent-autoapprove'
       bind-key S run-shell -b '${tmux-agent-sidebar}/bin/tmux-agent-sidebar --toggle'
       set-hook -g client-attached[91] 'run-shell -b ${tmux-agent-sidebar}/bin/tmux-agent-sidebar'

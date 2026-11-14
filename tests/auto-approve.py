@@ -73,6 +73,10 @@ with tempfile.TemporaryDirectory(prefix="approve-test-") as directory:
             assert approver.foreground(row), "Mock agent is not foreground on its PTY"
             approver.process_once()
             assert not state["requests"], "Every session starts OFF"
+            approver.set_enabled(row, None)
+            assert approver.enabled(row, approver.policies()), "Atomic toggle turns ON"
+            approver.set_enabled(row, None)
+            assert not approver.enabled(row, approver.policies()), "Atomic toggle turns OFF"
             approver.set_enabled(row, True)
             approver.process_once()
             assert state["requests"] == [("/notification-action", {

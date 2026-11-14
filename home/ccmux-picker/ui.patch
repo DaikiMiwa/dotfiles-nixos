@@ -1,0 +1,106 @@
+--- a/src/tui/App.tsx
++++ b/src/tui/App.tsx
+@@ -1,3 +1,4 @@
++import { autoApproval, autoApprovalMode, refreshAutoApproval, toggleAutoApproval } from "./AutoApproval";
+ import { watch } from "chokidar";
+ import {
+   batch,
+@@ -2187,6 +2188,13 @@
+         color: theme.green,
+         action: contextMenuAttach,
+       },
++      ...(session?.tmuxPane ? [{
++        id: "auto-approval",
++        label: `Auto: ${autoApprovalMode(session.id)} → ${autoApproval()[session.id] ? "OFF" : "ON"}`,
++        hint: "F2",
++        color: autoApproval()[session.id] ? theme.green : theme.text,
++        action: () => { store.actions.hideContextMenu(); void changeAutoApproval(session); },
++      }] : []),
+       newSessionItem,
+       ...forkItem,
+       ...reviewItem,
+@@ -3574,6 +3582,29 @@
+   let pendingG = false;
+   let pendingZ = false;
+ 
++  let autoApprovalBusy = false;
++  async function changeAutoApproval(session = store.selectedSession()) {
++    if (!session?.tmuxPane) {
++      store.actions.showToast("Select an agent row first");
++      return;
++    }
++    if (autoApprovalBusy || !ensureSameServer()) return;
++    autoApprovalBusy = true;
++    try {
++      await toggleAutoApproval(session.id);
++      store.actions.showToast(`Auto approval ${autoApprovalMode(session.id)}`);
++    } catch (error) {
++      store.actions.showToast(String(error));
++    } finally {
++      autoApprovalBusy = false;
++    }
++  }
++  onMount(() => {
++    void refreshAutoApproval();
++    const timer = setInterval(() => void refreshAutoApproval(), 1500);
++    onCleanup(() => clearInterval(timer));
++  });
++
+   useKeyboard((event: KeyEvent) => {
+     // The daemon suppresses `active_pane` for ccmux-titled panes, so a sidebar
+     // that is its own window's active pane never gets the event that would
+@@ -3744,6 +3775,12 @@
+           setPreviewRefreshKey((k) => k + 1);
+         }
+       }
++      event.preventDefault();
++      return;
++    }
++
++    if (key === "f2" || (key === "t" && event.ctrl)) {
++      void changeAutoApproval();
+       event.preventDefault();
+       return;
+     }
+--- a/src/tui/components/SessionItem.tsx
++++ b/src/tui/components/SessionItem.tsx
+@@ -1,3 +1,4 @@
++import { autoApproval, autoApprovalMode } from "../AutoApproval";
+ import type { Component } from "solid-js";
+ import { createMemo, For, Index, Show } from "solid-js";
+ import { useTick } from "../store";
+@@ -543,9 +544,12 @@
+   switch (entry.field) {
+     case "index":
+       return (
+-        <box width={width}>
++        <box width={width} flexDirection="row">
+           <Text fg={dimColor(ctx, theme.overlay)}>
+             {ctx.index < 9 ? `${ctx.index + 1}` : " "}
++          </Text>
++          <Text fg={autoApproval()[ctx.session.id] ? theme.green : theme.overlay}>
++            {` AUTO:${autoApprovalMode(ctx.session.id)}`.padEnd(9)}
+           </Text>
+         </box>
+       );
+--- a/src/tui/components/session-columns.ts
++++ b/src/tui/components/session-columns.ts
+@@ -989,7 +989,7 @@
+     case "time":
+       return 4;
+     case "index":
+-      return 1;
++      return 10;
+     default:
+       return 0; // text fields right-align with intrinsic width
+   }
+--- a/src/tui/components/Footer.tsx
++++ b/src/tui/components/Footer.tsx
+@@ -153,6 +153,7 @@
+     // falls out of display order rather than being stated, so a reshuffle of
+     // this array is a reshuffle of the drop order too.
+     { text: "j/k nav", rank: 3 },
++    { text: "F2 auto", rank: 5 },
+     { text: `enter ${props.persistent ? "switch" : "select"}`, rank: 4 },
+     { text: "n new", rank: 3 },
+     { text: "/ search", rank: 2 },

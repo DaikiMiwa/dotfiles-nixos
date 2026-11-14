@@ -84,7 +84,7 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
         # The agent list targets the opening terminal, and monitoring must not
         # overwrite continuum's save hook or the existing window formats.
         agent_list = tmux("list-keys", "-T", "prefix", "a").stdout
-        assert "ccmux --preview --client-tty #{client_tty}" in agent_list
+        assert "tmux-agent-picker --client-tty #{client_tty}" in agent_list
         assert "run-shell -C" in agent_list
         assert "tmux-agent-autoapprove" in tmux("list-keys", "-T", "prefix", "A").stdout
         assert "tmux-agent-sidebar --toggle" in tmux("list-keys", "-T", "prefix", "S").stdout

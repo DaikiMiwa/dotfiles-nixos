@@ -63,7 +63,10 @@ Homebrew の cask は `flake.lock` に固定されない。Nix の rollback で�
 
 ### ccmux（macOS）
 
-ccmux は `Brewfile` の formula として管理する。新しい Mac ではリポジトリのルートで
+ccmux の daemon / integration は `Brewfile` の formula として管理する。
+`Ctrl+b a` で開く一覧は、ccmux 1.4.6 のネイティブ UI に自動承認の表示・操作を足した Nix 管理版。
+上流ソース・Bun lockfile の依存・UI patch を固定し、Homebrew 本体は変更しない。
+新しい Mac ではリポジトリのルートで
 `brew bundle --file=Brewfile` を実行し、Home Manager を適用する。
 Linux / WSL ではこの Brewfile による導入は行わず、使う場合は別途 ccmux の導入が必要。
 Home Manager の switch だけでは ccmux 本体や各 CLI の hook は導入されない。
@@ -82,7 +85,9 @@ Codex に hook の信頼確認が表示された場合は、追加した ccmux h
 | 操作 | キー |
 | --- | --- |
 | プレビュー付きの一覧を開く | `Ctrl+b` → `a` |
-| エージェントごとの自動承認 ON / OFF | `Ctrl+b` → `Shift+a` → 対象を選んで `Enter` |
+| 選択行の自動承認 ON / OFF | 一覧で `F2` または `Ctrl+t` |
+| 行メニューから自動承認を切り替える | 一覧で `m` または行を右クリック → `Auto: OFF → ON` / `ON → OFF` |
+| 予備の自動承認設定画面 | `Ctrl+b` → `Shift+a` |
 | 一覧を閉じる | 一覧の選択中に `q` |
 | 対象のペインへ移動し、一覧を閉じる | `j` / `k` で選択 → `Enter` |
 | プレビューへ入力を送り、承認・回答する | 対象を選択 → `Tab` でプレビューに入る |
@@ -99,9 +104,14 @@ CLI のバージョンや現在の選択位置もあるため、プレビュー�
 
 ### セッションごとの自動承認
 
-`Ctrl+b Shift+a` の設定画面で、エージェントのセッションごとに ON / OFF を切り替える。
+`Ctrl+b a` の一覧に各行の `AUTO:ON` / `AUTO:OFF` が表示される。
+エージェント行を選んで `F2`（または `Ctrl+t`）で切り替える。
+`m` / 右クリックの行メニューからも変更できる。グループ見出しは一括変更しない。
+プレビューに入力中は `Tab` で一覧側へ戻ってから操作する。
+`AUTO:?` は状態をまだ取得できていない表示。変更失敗は toast に表示し、成功扱いにしない。
+一覧を表示するだけでは設定は変わらない。
 ここでのセッションは ccmux の一覧に出るエージェント単位。同じ tmux セッション内でも独立する。
-プレビューで対象を確認して `Enter` で切り替え、`Ctrl+r` で再読み込み、`Esc` で閉じる。
+`Ctrl+b Shift+a` の予備画面では対象を確認して `Enter` で切り替え、`Ctrl+r` で再読み込み、`Esc` で閉じる。
 既定はすべて OFF。ON にした時点ですでに承認待ちなら、その承認も送信対象になる。
 対象ペインを開いている間はステータスバーの `AUTO` で有効状態を確認できる。
 
@@ -124,9 +134,13 @@ OFF 操作は実行中の1要求が完了するまで待ち、OFF が反映さ�
 
 状態確認は `tmux-agent-autoapprove status`。
 CLI 操作では `tmux-agent-autoapprove on <ccmux-session-id>` / `off <ccmux-session-id>` も使える。
+`toggle <ccmux-session-id>` は現在値をロック内で反転し、`status --json` は一覧 UI 用の状態を返す。
 送信履歴と worker log は `~/.local/state/dotfiles/agent-auto-approve/` 配下（XDG_STATE_HOME 対応）に保存する。
 履歴には承認対象のコマンドや会話本文を保存しない。履歴を削除すると重複抑制も消えるので、監視中は削除しない。
 ccmux の内部 API に依存するため、更新時は ON / OFF・承認キー・世代チェックを再検証する。
+一覧 UI の更新は `home/ccmux-picker/package.nix` のソース・依存 hash と `ui.patch` を揃えて行う。
+通常の native checks は UI のビルドと状態表示・切り替えの Bun tests も実行する。
+開きっぱなしの一覧は更新されないため、Home Manager 適用後に閉じて `Ctrl+b a` で開き直す。
 
 サイドバーは既定で左側36列に常駐する。接続・新規セッション・設定再読み込み時に不足分を
 補い、すでに表示されている場合は重複作成しない。`Ctrl+b Shift+s` で明示的に隠した状態は

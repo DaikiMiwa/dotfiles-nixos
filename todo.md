@@ -1,5 +1,21 @@
 # Repository review
 
+## ccmux の一覧内で自動承認を切り替える
+
+- [x] 既存 ccmux UI の拡張方法と選択行の扱いを確認。
+- [x] Ctrl+b a の一覧に自動承認の ON / OFF 表示と切り替えを統合。
+- [x] 選択中セッションだけ切り替わることとプレビュー操作を検証。
+- [x] Nix の全環境評価・native checks・手順更新。
+- [x] macOS へ適用し、現在の tmux のキー割当を更新。
+
+ccmux 1.4.6 のネイティブ picker を Nix 管理し、各行に AUTO:ON / AUTO:OFF を表示。
+F2 / Ctrl+t と m / 右クリックの行メニューから切り替える。daemon / integration は既存 Homebrew 版。
+隔離 tmux と模擬エージェントで表示更新・1行だけの変更・行メニュー・見出し / プレビューのガードを確認。
+状態連携の Bun tests と、Python 側の原子的な toggle の回帰テストも追加。
+Nix ビルド済みの実行ファイルでも同じ UI 操作テストが成功。
+全 system の flake check（no-build）、Apple Silicon の6 checks、Home Manager build / switch が成功。
+起動済みの一覧は一度閉じて Ctrl+b a で開き直す。
+
 ## セッションごとの自動承認
 
 - [x] ccmux の承認 API とセッション識別・状態更新の仕様を確認。
