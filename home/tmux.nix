@@ -274,7 +274,7 @@ in
     focusEvents = true;
     keyMode = "vi";
     mouse = true;
-    prefix = "M-b";
+    prefix = "C-b";
     shell = "${pkgs.zsh}/bin/zsh";
     terminal = "tmux-256color";
     plugins = [
@@ -282,7 +282,7 @@ in
     ];
 
     extraConfig = ''
-      bind-key M-b send-prefix
+      bind-key C-b send-prefix
 
       bind h select-pane -L
       bind j select-pane -D
@@ -291,6 +291,7 @@ in
 
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
 
       bind | split-window -h -c "#{pane_current_path}"
       bind - split-window -v -c "#{pane_current_path}"

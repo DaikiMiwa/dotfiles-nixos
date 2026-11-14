@@ -188,6 +188,16 @@ Neovim の設定は `home/nvim/` に置き、Home Manager で `~/.config/nvim` �
 
 tmux では、`prefix + m` で fzf ベースのセッション管理ポップアップを開けます。
 
+prefix は `Ctrl+b` です。WezTerm では同じキーを leader として使い、2 秒以内に
+続けて押した英字・数字・記号などとまとめて tmux に送ります。
+日本語 IME に `w` などを取られずに操作するための設定です。
+`Ctrl+b` を2回押すと、ペイン内へ `Ctrl+b` を送れます。
+leader が時間切れになると操作は取り消され、prefix 自体は送られません。
+
+コピーモードは `Ctrl+b` → `[` で開き、Vim と同じ `h/j/k/l` で移動、
+`v` で選択開始、`Ctrl+v` で矩形選択、`y` でコピーして終了、`q` で終了します。
+IME による通常入力の扱いはそのままなので、コピーモード内の移動には英数入力を使います。
+
 WSL の tmux では、`prefix + I` で Windows クリップボード内の画像を PNG に保存し、その WSL パスを現在のペインへ貼り付けます。Codex CLI の画像貼り付けが Windows クリップボードを直接読めない場合は、このキーで画像パスを入力欄へ貼り付けて添付します。コマンド単体では `codex-wsl-clipboard-image` が保存後の WSL パスを出力し、`codex-wsl-paste-image` が tmux ペインへ貼り付けます。
 
 Docker は rootless モードで、ユーザーの systemd サービスとして動きます。

@@ -49,5 +49,60 @@ config.font_size = 14.0
 -- 副作用として Ctrl-A / Ctrl-E などの terminal shortcut に影響しうる。
 config.macos_forward_to_ime_modifier_mask = "SHIFT|CTRL"
 
+-- tmux の prefix と次のキーを IME より先に処理する。
+-- 2 秒以内に次のキーを押すと、Ctrl-B とそのキーをまとめて tmux へ送る。
+-- 通常入力の Ctrl-H は引き続き IME に渡す。
+config.leader = { key = "phys:B", mods = "CTRL", timeout_milliseconds = 2000 }
+config.keys = {}
+
+local function tmux_key(key, mods, text)
+  table.insert(config.keys, {
+    key = key,
+    mods = mods,
+    action = wezterm.action.SendString("\x02" .. text),
+  })
+end
+
+-- 英字は物理キーで捕まえ、かな入力中も同じ操作にする。
+for code = string.byte("a"), string.byte("z") do
+  local letter = string.char(code)
+  local physical = "phys:" .. letter:upper()
+  tmux_key(physical, "LEADER", letter)
+  tmux_key(physical, "LEADER|SHIFT", letter:upper())
+  tmux_key(physical, "LEADER|CTRL", string.char(code - 96))
+end
+
+-- 数字・記号も転送する（例: [、|、-、%、?）。
+-- 記号の Shift の要否はキーボード配列により異なる。
+for code = 32, 126 do
+  local char = string.char(code)
+  if not char:match("%a") then
+    tmux_key("mapped:" .. char, "LEADER", char)
+    tmux_key("mapped:" .. char, "LEADER|SHIFT", char)
+  end
+end
+
+for _, key in ipairs({
+  "Enter",
+  "Escape",
+  "Tab",
+  "Backspace",
+  "UpArrow",
+  "DownArrow",
+  "LeftArrow",
+  "RightArrow",
+  "PageUp",
+  "PageDown",
+}) do
+  table.insert(config.keys, {
+    key = key,
+    mods = "LEADER",
+    action = wezterm.action.Multiple({
+      wezterm.action.SendString("\x02"),
+      wezterm.action.SendKey({ key = key }),
+    }),
+  })
+end
+
 -- 設定ファイルの自動リロードはWezTermではデフォルトで有効です
 return config

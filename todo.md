@@ -1,5 +1,18 @@
 # Repository review
 
+## tmux / WezTerm の操作見直し
+
+- [x] tmux の prefix を Ctrl-B に戻す。
+- [x] WezTerm の leader で日本語 IME より先に prefix 操作を処理する。
+- [x] tmux の vi コピーモードに v / Ctrl-V / y を揃える。
+- [x] 設定の検証と運用手順の更新。
+- [ ] 適用後、日本語未確定入力中の Ctrl-B → w / m / [ を実機確認。
+
+検証: `nix fmt`、全 system の flake check（no-build）、Apple Silicon の
+format-nix / format-lua / shell-scripts / cursor-cli / dotfiles-helpers /
+neovim-config の build、WezTerm の show-keys、git diff --check が成功。
+Home Manager の適用と IME 入力を伴う GUI 操作は未実施。
+
 - [x] 作業ツリーが clean であることと、主要設定・既存改善メモを確認。
 - [x] Neovim の配置、保存時 formatter、シェル補助コマンドの不具合を修正。
 - [x] 更新・検証・切り戻し手順と残課題を文書化。
