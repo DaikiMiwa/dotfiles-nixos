@@ -1,5 +1,13 @@
 # Repository review
 
+## 追加レビュー: Neovim / tmux / WezTerm
+
+- [x] 現在の設定と既存テストを読む。
+- [x] LSP・補完・整形・キーバインドの問題を切り分け、再現できるものを確認する。
+- [x] tmux / WezTerm の追加改善候補と合わせ、優先度付きで報告する。
+
+今回のレビューでは設定の変更・適用は行わない。結果は `docs/editor-review.md`。
+
 ## tmux / WezTerm の操作見直し
 
 ### macOS への適用
