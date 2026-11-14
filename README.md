@@ -242,7 +242,11 @@ latexmk-lualatex main.tex
 
 `paper-new` は `--engine <lualatex|pdflatex|platex|uplatex>` と `--template <article|conference|minimal>` を選べます。補助コマンドとして、`paper-check`、`paper-count`、`paper-diff`、`paper-bib-sort`、`paper-bib-check`、`paper-fig` も入ります。
 
-Neovim では `.tex` を開いた時だけ VimTeX と LaTeX snippets が読み込まれます。`<leader>ll` で自動ビルド、`<leader>lv` で PDF 表示、`<leader>lb` で `.bib` から citation、`<leader>lp` / `<leader>la` で `\parencite{}` / `\textcite{}`、`<leader>lr` で `\label{}` から `\cref{}` を挿入します。`<leader>lF`、`<leader>lT`、`<leader>lE` で図・表・数式ラベルに絞り込めます。`<leader>ld` は論文 dashboard、`<leader>lo` は TODO picker、`<leader>lw` は word/page count、`<leader>lC` は `paper-check` です。
+Neovim では LaTeX ファイルで VimTeX と LaTeX snippets を使えます。`<leader>ll` で自動ビルド、`<leader>lv` で PDF 表示、`<leader>lb` で `.bib` から citation、`<leader>lp` / `<leader>la` で `\parencite{}` / `\textcite{}`、`<leader>lr` で `\label{}` から `\cref{}` を挿入します。`<leader>lF`、`<leader>lT`、`<leader>lE` で図・表・数式ラベルに絞り込めます。`<leader>ld` は論文 dashboard、`<leader>lo` は TODO picker、`<leader>lw` は word/page count、`<leader>lC` は `paper-check` です。
+
+Markdown の数式内でも LaTeX 数式 snippets が使えます。Markdown は表示行で折り返し、`j` / `k` は表示行単位で移動します（回数指定時は実際の行単位）。`<leader>uf` は現在のバッファだけ保存時整形を切り替えます。診断は `[d` / `]d` で移動し、`<leader>xd` で詳細、`<leader>xx` で一覧を表示します。
+
+Oil は `<leader>e` で開き、`Ctrl-p` で内部プレビュー、`Ctrl-s` / `Ctrl-h` で分割、`g.` で隠しファイル表示を切り替えます。`gx` は選択項目を既定の外部アプリで開き、macOS の `gF` は Finder で選択項目を表示します。
 
 ## React Native / Expo
 

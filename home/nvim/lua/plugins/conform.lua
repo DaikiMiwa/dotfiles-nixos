@@ -33,10 +33,12 @@ return {
     "stevearc/conform.nvim",
     event = { "BufReadPre", "BufNewFile" },
     opts = {
-      format_on_save = {
-        timeout_ms = 1000,
-        lsp_format = "fallback",
-      },
+      format_on_save = function(bufnr)
+        if vim.b[bufnr].disable_autoformat then
+          return
+        end
+        return { timeout_ms = 1000, lsp_format = "fallback" }
+      end,
       formatters_by_ft = {
         nix = { "nixfmt" },
         astro = { "prettier" },
@@ -100,6 +102,14 @@ return {
       },
     },
     keys = {
+      {
+        "<leader>uf",
+        function()
+          vim.b.disable_autoformat = not vim.b.disable_autoformat
+          vim.notify("Format on save " .. (vim.b.disable_autoformat and "disabled" or "enabled") .. " for this buffer")
+        end,
+        desc = "Toggle format on save for buffer",
+      },
       {
         "<leader>cf",
         function()

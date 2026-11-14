@@ -5,6 +5,27 @@ return {
     cmd = "Trouble",
     keys = {
       {
+        "[d",
+        function()
+          vim.diagnostic.jump({ count = -1, float = true })
+        end,
+        desc = "Previous diagnostic",
+      },
+      {
+        "]d",
+        function()
+          vim.diagnostic.jump({ count = 1, float = true })
+        end,
+        desc = "Next diagnostic",
+      },
+      {
+        "<leader>xd",
+        function()
+          vim.diagnostic.open_float()
+        end,
+        desc = "Diagnostic details",
+      },
+      {
         "<leader>xx",
         "<cmd>Trouble diagnostics toggle<cr>",
         desc = "Diagnostics (Trouble)",

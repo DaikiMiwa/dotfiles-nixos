@@ -35,6 +35,11 @@ assert(vim.treesitter.get_parser(0, "lua"):parse()[1], "Nix Lua parser is unavai
 assert(vim.treesitter.query.get("lua", "highlights"), "Nix parser queries are invalid")
 
 local formatter = dofile("home/nvim/lua/plugins/conform.lua")[1].opts.formatters.textlint
+local format_on_save = dofile("home/nvim/lua/plugins/conform.lua")[1].opts.format_on_save
+assert(format_on_save(0), "Formatting must be enabled by default")
+vim.b.disable_autoformat = true
+assert(not format_on_save(0), "Buffer toggle must disable formatting")
+vim.b.disable_autoformat = nil
 local base = vim.fn.tempname()
 local project = base .. "/project"
 local nested = project .. "/docs"
@@ -64,6 +69,9 @@ vim.api.nvim_exec_autocmds("VimResized", {})
 assert(vim.api.nvim_get_current_win() == original_window, "Resize changed the active tab/window")
 
 dofile("home/nvim/lua/config/set.lua")
+vim.bo.filetype = "markdown"
+assert(vim.wo.wrap and vim.wo.linebreak, "Markdown should wrap at word boundaries")
+assert(vim.fn.maparg("j", "n") ~= "", "Markdown should navigate display lines")
 assert(vim.fn.maparg("?", "n") == "", "Backward search must retain its native binding")
 assert(vim.fn.maparg("<C-k>", "i") == "", "Ctrl-K must retain native digraph input")
 assert(vim.fn.maparg("<leader>sq", "n") ~= "", "Search-to-quickfix must remain available")
