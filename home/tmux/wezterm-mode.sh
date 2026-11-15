@@ -15,9 +15,12 @@ notify() {
 case "${1:-}" in
   --prompt-start) tmux set-option -g "@wezterm-prompt-$2" 1 ;;
   --prompt-end) tmux set-option -gu "@wezterm-prompt-$2" ;;
+  --keys-start) tmux set-option -g "@wezterm-keys-$2" 1 ;;
+  --keys-end) tmux set-option -gu "@wezterm-keys-$2" ;;
   --clear)
     notify "$2" off
     tmux set-option -gu "@wezterm-prompt-$2" 2>/dev/null || true
+    tmux set-option -gu "@wezterm-keys-$2" 2>/dev/null || true
     exit 0
     ;;
 esac
@@ -27,8 +30,13 @@ while read -r tty mode pane; do
   [ -n "$tty" ] || continue
   if [ "$(tmux show-option -gqv "@wezterm-prompt-$tty")" = 1 ]; then
     notify "$tty" prompt
+  elif [ "$(tmux show-option -gqv "@wezterm-keys-$tty")" = 1 ]; then
+    notify "$tty" keys
   elif [ "$mode" = copy-mode ]; then
     notify "$tty" "copy:$pane"
+  elif [ "$mode" != normal ]; then
+    # choose-tree and the other pickers are driven by single keys as well.
+    notify "$tty" keys
   else
     notify "$tty" normal
   fi

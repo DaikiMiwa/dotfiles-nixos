@@ -441,12 +441,13 @@ in
 
       set-option -sa terminal-overrides ",xterm*:Tc"
 
-      bind-key m display-popup -E -w 80% -h 80% "${tmux-session-manager}/bin/tmux-session-manager"
+      # Popups are driven by single keys; keep the IME out of them while open.
+      bind-key m run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --keys-start #{client_name}' \; display-popup -E -w 80% -h 80% "${tmux-session-manager}/bin/tmux-session-manager" \; run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --keys-end #{client_name}'
 
       # ccmux is installed through Brewfile on macOS. Pass the opening client
       # explicitly so another terminal attached to this session stays put.
-      bind-key a run-shell -C 'display-popup -E -w 80% -h 75% "${tmux-agent-picker}/bin/tmux-agent-picker --client-tty #{client_tty}"'
-      bind-key A display-popup -E -w 85% -h 80% '${tmux-agent-autoapprove}/bin/tmux-agent-autoapprove'
+      bind-key a run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --keys-start #{client_name}' \; run-shell -C 'display-popup -E -w 80% -h 75% "${tmux-agent-picker}/bin/tmux-agent-picker --client-tty #{client_tty}"' \; run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --keys-end #{client_name}'
+      bind-key A run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --keys-start #{client_name}' \; display-popup -E -w 85% -h 80% '${tmux-agent-autoapprove}/bin/tmux-agent-autoapprove' \; run-shell '${tmux-wezterm-mode}/bin/tmux-wezterm-mode --keys-end #{client_name}'
       bind-key S run-shell -b '${tmux-agent-sidebar}/bin/tmux-agent-sidebar --toggle'
       set-hook -g client-attached[91] 'run-shell -b ${tmux-agent-sidebar}/bin/tmux-agent-sidebar'
       set-hook -g after-new-session[91] 'run-shell -b ${tmux-agent-sidebar}/bin/tmux-agent-sidebar'

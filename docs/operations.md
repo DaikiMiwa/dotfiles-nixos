@@ -181,7 +181,9 @@ tmux / WezTerm の日本語入力連携は、Home Manager 適用後に WezTerm �
 再読み込みしたことを確認し、tmux 内で `tmux source-file ~/.config/tmux/tmux.conf` を実行する。
 日本語の未確定文字がある状態で `Ctrl+b` → `w` / `m` / `[` を確認し、
 コピー中の `h/j/k/l`・`v`・`y` と、`/` 検索の日本語入力・確定・キャンセルも確認する。
-上部の `PREFIX` / `COPY` / `SEARCH` 表示と、通常入力に戻った後の IME 動作も確認する。
+日本語入力のまま `Ctrl+b` → `m` / `a` / `A` / `w` を開き、中の `j/k`・`y/n`・Enter・Esc が効くことと、
+閉じた後に日本語入力へ戻っていることを確認する。
+上部の `PREFIX` / `COPY` / `KEYS` / `SEARCH` 表示と、通常入力に戻った後の IME 動作も確認する。
 デタッチ後は `Ctrl+b` が単独でアプリへ届くことを確認する。
 
 Neovim の起動経路変更後は、新しい zsh で `command -v nvim` が Nix store 内の

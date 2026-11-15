@@ -132,6 +132,18 @@ with tempfile.TemporaryDirectory(prefix="tmux-test-") as directory:
             raise AssertionError("Vim selection did not start")
 
         expect_mode("normal", select_and_copy)
+        # Pickers and popups take single keys, so they bypass the IME until closed.
+        expect_mode("keys", lambda: tmux("choose-tree", "-t", pane))
+        expect_mode("normal", lambda: os.write(master, b"q"))
+
+        def prefix(key):
+            # Distinct key presses avoid tmux's paste-burst detection.
+            os.write(master, b"\x02")
+            time.sleep(0.2)
+            os.write(master, key)
+
+        expect_mode("keys", lambda: prefix(b"m"))
+        expect_mode("normal", lambda: os.write(master, b"\x1b"))
         expect_mode(f"copy:{pane}", lambda: tmux("copy-mode", "-t", pane))
         tty = tmux("list-clients", "-F", "#{client_tty}").stdout.strip()
         expect_mode("off", lambda: tmux("detach-client", "-t", tty))

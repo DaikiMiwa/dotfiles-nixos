@@ -21,7 +21,7 @@ config.window_background_opacity = 0.85
 -- タイトルバーを消し、リサイズ可能な枠線のみ残します
 config.window_decorations = "RESIZE"
 
--- PREFIX / COPY / SEARCH を常に確認できるよう、1 タブでも表示する。
+-- PREFIX / COPY / KEYS / SEARCH を常に確認できるよう、1 タブでも表示する。
 config.hide_tab_bar_if_only_one_tab = false
 
 -- [cursor]
@@ -51,8 +51,12 @@ config.macos_forward_to_ime_modifier_mask = "SHIFT|CTRL"
 
 -- tmux 接続中だけ prefix 待機に入り、次のキーも IME より先に処理する。
 -- 未接続・デタッチ後は Ctrl-B をそのままアプリに渡す。
+-- copy はコピーモード、keys はポップアップや choose-tree など1キーで操作する画面。
+local function raw_keys(mode)
+  return mode == "keys" or (mode or ""):match("^copy:") ~= nil
+end
 local function tmux_connected(mode)
-  return mode == "normal" or mode == "prompt" or (mode or ""):match("^copy:") ~= nil
+  return mode == "normal" or mode == "prompt" or raw_keys(mode)
 end
 local prefix = wezterm.action_callback(function(window, pane)
   if tmux_connected(pane:get_user_vars().TMUX_MODE) then
@@ -72,7 +76,7 @@ config.keys = { { key = "phys:B", mods = "CTRL", action = prefix } }
 config.key_tables = { tmux_prefix = {}, tmux_copy = {} }
 config.status_update_interval = 100
 
--- prefix の後と、tmux コピーモード内で同じキー集合を扱う。
+-- prefix の後と、tmux コピーモード・ポップアップ内で同じキー集合を扱う。
 local function forward(key, mods, action)
   local leader_action = wezterm.action.Multiple({ wezterm.action.SendString("\x02"), action })
   table.insert(config.key_tables.tmux_prefix, { key = key, mods = mods, action = leader_action })
@@ -141,7 +145,8 @@ for _, key in ipairs(special_keys) do
 end
 
 -- tmux は mode/pane/window/session の変更を OSC 1337 で通知する。
--- COPY の間だけ英字を IME より先に処理し、検索欄と通常入力は IME に任せる。
+-- COPY / KEYS の間だけ英字を IME より先に処理し、検索欄と通常入力は IME に任せる。
+-- IME の入力ソース自体は変えないので、閉じた後は開く前の状態で入力できる。
 local function sync_tmux_mode(window, pane, mode)
   mode = mode or pane:get_user_vars().TMUX_MODE or "off"
   local active = window:active_key_table()
@@ -149,7 +154,7 @@ local function sync_tmux_mode(window, pane, mode)
     window:perform_action(wezterm.action.PopKeyTable, pane)
     active = window:active_key_table()
   end
-  if mode:match("^copy:") then
+  if raw_keys(mode) then
     if active == nil then
       window:perform_action(wezterm.action.ActivateKeyTable({ name = "tmux_copy", one_shot = false }), pane)
     end
@@ -161,7 +166,7 @@ local function sync_tmux_mode(window, pane, mode)
   if window:active_key_table() == "tmux_prefix" then
     label = " PREFIX "
   elseif window:active_key_table() == "tmux_copy" then
-    label = " COPY "
+    label = mode == "keys" and " KEYS " or " COPY "
   elseif mode == "prompt" then
     label = " SEARCH "
   end
